@@ -46,7 +46,7 @@ def _create_app() -> FastMCP:
             auth_server_provider=oauth_provider,
             auth=AuthSettings(
                 issuer_url=server_url,
-                resource_server_url=server_url,
+                resource_server_url=f"{server_url}/mcp",
                 client_registration_options=ClientRegistrationOptions(
                     enabled=True,
                 ),
