@@ -36,7 +36,15 @@ cp .env.example .env
 uv sync
 ```
 
-## Usage
+## Quick Install (Claude Code Plugin)
+
+```bash
+claude plugin install dalgo
+```
+
+You'll be prompted for your Dalgo API URL, username, password, and org slug. That's it — the plugin handles MCP server setup automatically.
+
+## Manual Setup
 
 ### stdio mode (Claude Desktop / Claude Code)
 
@@ -142,6 +150,9 @@ In HTTP mode, the server verifies JWT structure and expiry (the Dalgo backend va
 ## Project Structure
 
 ```
+.claude-plugin/
+└── plugin.json      # Claude Code plugin manifest
+.mcp.json            # MCP server config for plugin mode
 src/dalgo_mcp/
 ├── config.py        # Environment config and validation
 ├── auth.py          # JWT token verifier for HTTP mode

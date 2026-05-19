@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dalgo",
+  "displayName": "Dalgo",
+  "version": "0.1.0",
+  "description": "MCP server for the Dalgo ELT platform. Access your data warehouse, pipelines, dashboards, charts, reports, dbt transforms, and product documentation via natural language.",
+  "author": {
+    "name": "DalgoT4D",
+    "url": "https://github.com/DalgoT4D"
+  },
+  "homepage": "https://dalgo.in",
+  "repository": "https://github.com/DalgoT4D/dalgo-mcp",
+  "license": "MIT",
+  "keywords": ["dalgo", "ELT", "data", "warehouse", "pipelines", "dbt", "airbyte", "NGO"],
+  "mcpServers": "./.mcp.json",
+  "userConfig": {
+    "dalgo_api_url": {
+      "type": "string",
+      "title": "Dalgo API URL",
+      "description": "Base URL of your Dalgo instance (e.g. https://app.dalgo.in)",
+      "required": true,
+      "default": "https://app.dalgo.in"
+    },
+    "dalgo_username": {
+      "type": "string",
+      "title": "Dalgo username",
+      "description": "Your Dalgo login email",
+      "required": true
+    },
+    "dalgo_password": {
+      "type": "string",
+      "title": "Dalgo password",
+      "description": "Your Dalgo login password",
+      "sensitive": true,
+      "required": true
+    },
+    "dalgo_org_slug": {
+      "type": "string",
+      "title": "Dalgo organization slug",
+      "description": "Your Dalgo organization slug (visible in your Dalgo settings)",
+      "required": true
+    }
+  }
+}
