@@ -16,10 +16,14 @@ def _create_app() -> FastMCP:
         from dalgo_mcp.oauth import DalgoOAuthProvider
         from dalgo_mcp.login import create_login_handlers
 
-        # Use localhost for issuer URL — the MCP SDK allows HTTP only for
-        # localhost/127.0.0.1 (per RFC 8414). The actual bind address may be 0.0.0.0.
-        issuer_host = "localhost" if config.host == "0.0.0.0" else config.host
-        server_url = f"http://{issuer_host}:{config.port}"
+        # When behind a reverse proxy/tunnel, use DALGO_PUBLIC_URL as the OAuth
+        # issuer and resource URL. Otherwise fall back to localhost (the MCP SDK
+        # allows HTTP only for localhost/127.0.0.1 per RFC 8414).
+        if config.public_url:
+            server_url = config.public_url
+        else:
+            issuer_host = "localhost" if config.host == "0.0.0.0" else config.host
+            server_url = f"http://{issuer_host}:{config.port}"
         oauth_provider = DalgoOAuthProvider(config.api_url)
 
         mcp = FastMCP(

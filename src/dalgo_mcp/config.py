@@ -21,6 +21,9 @@ class Config:
         self.transport = os.environ.get("DALGO_TRANSPORT", "stdio")
         self.host = os.environ.get("DALGO_HOST", "0.0.0.0")
         self.port = int(os.environ.get("DALGO_PORT", "8080"))
+        # Public URL when behind a reverse proxy or tunnel (e.g. Cloudflare Tunnel).
+        # Used as OAuth issuer/resource URL in metadata. Falls back to http://localhost:<port>.
+        self.public_url = os.environ.get("DALGO_PUBLIC_URL", "").rstrip("/")
 
     def validate(self):
         if self.transport not in ("stdio", "streamable-http"):
