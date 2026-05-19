@@ -12,11 +12,17 @@ logger = logging.getLogger(__name__)
 def _create_app() -> FastMCP:
     """Create the FastMCP app with transport-appropriate settings."""
     if config.transport == "streamable-http":
-        from mcp.server.auth.provider import TokenVerifier
-        from mcp.server.auth.settings import AuthSettings
-        from dalgo_mcp.auth import DalgoTokenVerifier
+        from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions
+        from dalgo_mcp.oauth import DalgoOAuthProvider
+        from dalgo_mcp.login import create_login_handlers
 
-        return FastMCP(
+        # Use localhost for issuer URL — the MCP SDK allows HTTP only for
+        # localhost/127.0.0.1 (per RFC 8414). The actual bind address may be 0.0.0.0.
+        issuer_host = "localhost" if config.host == "0.0.0.0" else config.host
+        server_url = f"http://{issuer_host}:{config.port}"
+        oauth_provider = DalgoOAuthProvider(config.api_url)
+
+        mcp = FastMCP(
             "Dalgo",
             instructions=(
                 "Dalgo is an open-source ELT platform for NGOs and social-impact organizations. "
@@ -33,14 +39,30 @@ def _create_app() -> FastMCP:
                 "- Organization: view current user, org members, and feature flags\n"
                 "- Documentation: search and browse Dalgo product documentation"
             ),
-            token_verifier=DalgoTokenVerifier(),
+            auth_server_provider=oauth_provider,
             auth=AuthSettings(
-                issuer_url=config.api_url,
-                resource_server_url=f"http://{config.host}:{config.port}",
+                issuer_url=server_url,
+                resource_server_url=server_url,
+                client_registration_options=ClientRegistrationOptions(
+                    enabled=True,
+                ),
             ),
             host=config.host,
             port=config.port,
         )
+
+        # Register login page routes (outside OAuth/MCP auth — public endpoints)
+        handle_login_get, handle_login_post = create_login_handlers(oauth_provider)
+
+        @mcp.custom_route("/login", methods=["GET"])
+        async def login_get(request):
+            return await handle_login_get(request)
+
+        @mcp.custom_route("/login", methods=["POST"])
+        async def login_post(request):
+            return await handle_login_post(request)
+
+        return mcp
     else:
         return FastMCP(
             "Dalgo",
