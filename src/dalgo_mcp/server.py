@@ -51,6 +51,7 @@ def _create_app() -> FastMCP:
                     enabled=True,
                 ),
             ),
+            streamable_http_path="/",
             host=config.host,
             port=config.port,
         )
