@@ -1,6 +1,9 @@
+import json
+
 from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.pii import mask_pii_in_rows
 
 
 def register(app: FastMCP, get_client):
@@ -38,6 +41,7 @@ def register(app: FastMCP, get_client):
     @app.tool()
     async def dalgo_get_table_data(schema: str, table: str, limit: int = 10, offset: int = 0) -> str:
         """Fetch rows from a warehouse table. Defaults to 10 rows to avoid context overflow.
+        PII columns (name, email, phone, address, etc.) are automatically masked.
 
         Args:
             schema: Schema name.
@@ -50,6 +54,13 @@ def register(app: FastMCP, get_client):
             f"/api/warehouse/table_data/{schema}/{table}",
             params={"limit": limit, "offset": offset},
         )
+        if resp.status_code < 400:
+            try:
+                rows = resp.json()
+                if isinstance(rows, list):
+                    return json.dumps(mask_pii_in_rows(rows), indent=2, default=str)
+            except Exception:
+                pass
         return format_response(resp)
 
     @app.tool()

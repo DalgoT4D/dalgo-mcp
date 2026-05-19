@@ -18,7 +18,20 @@ def _create_app() -> FastMCP:
 
         return FastMCP(
             "Dalgo",
-            instructions="MCP server for managing Dalgo ELT pipelines, warehouse data, dashboards, and more",
+            instructions=(
+                "Dalgo is an open-source ELT platform for NGOs and social-impact organizations. "
+                "Use this server when the user asks about their data warehouse, data pipelines, "
+                "dashboards, charts, reports, or data sources.\n\n"
+                "Capabilities:\n"
+                "- Warehouse: browse schemas, tables, columns, and fetch row data\n"
+                "- Pipelines: list, create, trigger, and monitor Prefect orchestration pipelines\n"
+                "- Sources & Connections: manage Airbyte data sources and sync connections\n"
+                "- Dashboards & Charts: create, update, and query visualization dashboards and charts\n"
+                "- Reports: create point-in-time dashboard snapshots with date filtering\n"
+                "- Transforms: manage dbt workspace, run dbt, view the DAG, sync sources\n"
+                "- Notifications: view and manage user notifications\n"
+                "- Organization: view current user, org members, and feature flags"
+            ),
             token_verifier=DalgoTokenVerifier(),
             auth=AuthSettings(
                 issuer_url=config.api_url,
@@ -30,7 +43,20 @@ def _create_app() -> FastMCP:
     else:
         return FastMCP(
             "Dalgo",
-            instructions="MCP server for managing Dalgo ELT pipelines, warehouse data, dashboards, and more",
+            instructions=(
+                "Dalgo is an open-source ELT platform for NGOs and social-impact organizations. "
+                "Use this server when the user asks about their data warehouse, data pipelines, "
+                "dashboards, charts, reports, or data sources.\n\n"
+                "Capabilities:\n"
+                "- Warehouse: browse schemas, tables, columns, and fetch row data\n"
+                "- Pipelines: list, create, trigger, and monitor Prefect orchestration pipelines\n"
+                "- Sources & Connections: manage Airbyte data sources and sync connections\n"
+                "- Dashboards & Charts: create, update, and query visualization dashboards and charts\n"
+                "- Reports: create point-in-time dashboard snapshots with date filtering\n"
+                "- Transforms: manage dbt workspace, run dbt, view the DAG, sync sources\n"
+                "- Notifications: view and manage user notifications\n"
+                "- Organization: view current user, org members, and feature flags"
+            ),
         )
 
 
