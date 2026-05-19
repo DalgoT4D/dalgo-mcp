@@ -227,7 +227,7 @@ class DalgoOAuthProvider(OAuthAuthorizationServerProvider):
         # Call Dalgo's refresh endpoint
         async with httpx.AsyncClient(base_url=self.api_url, timeout=30.0, follow_redirects=True) as http:
             resp = await http.post(
-                "/api/token/refresh/",
+                "/api/token/refresh",
                 json={"refresh": dalgo_refresh},
             )
 
