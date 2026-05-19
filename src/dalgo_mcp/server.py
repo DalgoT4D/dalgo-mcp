@@ -46,11 +46,12 @@ def _create_app() -> FastMCP:
             auth_server_provider=oauth_provider,
             auth=AuthSettings(
                 issuer_url=server_url,
-                resource_server_url=f"{server_url}/mcp",
+                resource_server_url=server_url,
                 client_registration_options=ClientRegistrationOptions(
                     enabled=True,
                 ),
             ),
+            streamable_http_path="/",
             host=config.host,
             port=config.port,
         )
