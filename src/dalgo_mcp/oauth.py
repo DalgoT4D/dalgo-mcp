@@ -225,7 +225,7 @@ class DalgoOAuthProvider(OAuthAuthorizationServerProvider):
             raise TokenError("invalid_grant", "Refresh token not found")
 
         # Call Dalgo's refresh endpoint
-        async with httpx.AsyncClient(base_url=self.api_url, timeout=30.0) as http:
+        async with httpx.AsyncClient(base_url=self.api_url, timeout=30.0, follow_redirects=True) as http:
             resp = await http.post(
                 "/api/token/refresh/",
                 json={"refresh": dalgo_refresh},

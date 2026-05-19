@@ -139,7 +139,7 @@ def create_login_handlers(oauth_provider):
         # Authenticate against the Dalgo API
         try:
             async with httpx.AsyncClient(
-                base_url=oauth_provider.api_url, timeout=30.0
+                base_url=oauth_provider.api_url, timeout=30.0, follow_redirects=True
             ) as http:
                 resp = await http.post(
                     "/api/login/",
