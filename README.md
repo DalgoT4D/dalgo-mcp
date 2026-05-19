@@ -20,8 +20,9 @@ Supports two transports:
 | Reports | 4 | Report (snapshot) CRUD |
 | Transforms | 5 | dbt workspace, git status, run, DAG, sync sources |
 | Notifications | 3 | List, unread count, mark read |
+| Documentation | 3 | Search and browse Dalgo product documentation |
 
-**48 tools total.**
+**51 tools total.**
 
 ## Setup
 
@@ -156,7 +157,8 @@ src/dalgo_mcp/
     ├── charts.py
     ├── reports.py
     ├── transforms.py
-    └── notifications.py
+    ├── notifications.py
+    └── docs.py
 ```
 
 ## License

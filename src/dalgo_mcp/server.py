@@ -30,7 +30,8 @@ def _create_app() -> FastMCP:
                 "- Reports: create point-in-time dashboard snapshots with date filtering\n"
                 "- Transforms: manage dbt workspace, run dbt, view the DAG, sync sources\n"
                 "- Notifications: view and manage user notifications\n"
-                "- Organization: view current user, org members, and feature flags"
+                "- Organization: view current user, org members, and feature flags\n"
+                "- Documentation: search and browse Dalgo product documentation"
             ),
             token_verifier=DalgoTokenVerifier(),
             auth=AuthSettings(
@@ -55,7 +56,8 @@ def _create_app() -> FastMCP:
                 "- Reports: create point-in-time dashboard snapshots with date filtering\n"
                 "- Transforms: manage dbt workspace, run dbt, view the DAG, sync sources\n"
                 "- Notifications: view and manage user notifications\n"
-                "- Organization: view current user, org members, and feature flags"
+                "- Organization: view current user, org members, and feature flags\n"
+                "- Documentation: search and browse Dalgo product documentation"
             ),
         )
 
@@ -97,6 +99,7 @@ from dalgo_mcp.tools import charts
 from dalgo_mcp.tools import reports
 from dalgo_mcp.tools import transforms
 from dalgo_mcp.tools import notifications
+from dalgo_mcp.tools import docs
 
 organization.register(app, get_client)
 warehouse.register(app, get_client)
@@ -108,6 +111,7 @@ charts.register(app, get_client)
 reports.register(app, get_client)
 transforms.register(app, get_client)
 notifications.register(app, get_client)
+docs.register(app, get_client)
 
 
 def main():
