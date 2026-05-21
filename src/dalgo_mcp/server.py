@@ -54,7 +54,7 @@ def _create_app() -> FastMCP:
             streamable_http_path="/",
             host=config.host,
             port=config.port,
-            log_level=logging.DEBUG,
+            debug=True,
         )
 
         # Register login page routes (outside OAuth/MCP auth — public endpoints)
