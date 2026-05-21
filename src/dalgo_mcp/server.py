@@ -54,6 +54,7 @@ def _create_app() -> FastMCP:
             streamable_http_path="/",
             host=config.host,
             port=config.port,
+            log_level=logging.DEBUG,
         )
 
         # Register login page routes (outside OAuth/MCP auth — public endpoints)
@@ -70,6 +71,7 @@ def _create_app() -> FastMCP:
         @mcp.custom_route("/health", methods=["GET"])
         async def health(request):
             from starlette.responses import JSONResponse
+
             return JSONResponse({"status": "ok"})
 
         return mcp
@@ -112,7 +114,9 @@ async def get_client() -> DalgoClient:
 
         access_token = get_access_token()
         if access_token is None:
-            raise RuntimeError("No access token in request context (HTTP mode requires authentication)")
+            raise RuntimeError(
+                "No access token in request context (HTTP mode requires authentication)"
+            )
         return await get_client_for_token(access_token.token)
     else:
         if _client is None:
