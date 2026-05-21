@@ -38,11 +38,21 @@ class DalgoClient:
         )
         resp.raise_for_status()
         data = resp.json()
-        orgs = data.get("orguser", data.get("org", []))
-        if isinstance(orgs, list) and orgs:
-            instance._org_slug = orgs[0].get("org", {}).get("slug", "")
-        elif isinstance(orgs, dict):
-            instance._org_slug = orgs.get("slug", "")
+        # The API may return a list of org-user objects or a single dict
+        if isinstance(data, list):
+            if data:
+                first = data[0]
+                instance._org_slug = (
+                    first.get("org", {}).get("slug", "")
+                    if isinstance(first, dict)
+                    else ""
+                )
+        elif isinstance(data, dict):
+            orgs = data.get("orguser", data.get("org", []))
+            if isinstance(orgs, list) and orgs:
+                instance._org_slug = orgs[0].get("org", {}).get("slug", "")
+            elif isinstance(orgs, dict):
+                instance._org_slug = orgs.get("slug", "")
 
         if not instance._org_slug:
             raise ValueError("Could not auto-detect org_slug from /api/currentuserv2")
