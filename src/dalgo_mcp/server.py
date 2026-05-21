@@ -55,6 +55,7 @@ def _create_app() -> FastMCP:
             host=config.host,
             port=config.port,
             debug=True,
+            log_level="DEBUG",
         )
 
         # Register login page routes (outside OAuth/MCP auth — public endpoints)
