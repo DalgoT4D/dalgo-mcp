@@ -192,7 +192,6 @@ def main():
                     host=app.settings.host,
                     port=app.settings.port,
                     log_level="trace",
-                    http="h11",
                 )
             )
             await server.serve()
