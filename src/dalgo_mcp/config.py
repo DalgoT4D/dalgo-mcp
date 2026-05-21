@@ -24,6 +24,7 @@ class Config:
         # Public URL when behind a reverse proxy or tunnel (e.g. Cloudflare Tunnel).
         # Used as OAuth issuer/resource URL in metadata. Falls back to http://localhost:<port>.
         self.public_url = os.environ.get("DALGO_PUBLIC_URL", "").rstrip("/")
+        self.debug = os.environ.get("DALGO_DEBUG", "").lower() in ("1", "true", "yes")
 
     def validate(self):
         if self.transport not in ("stdio", "streamable-http"):
