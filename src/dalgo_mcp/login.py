@@ -142,7 +142,7 @@ def create_login_handlers(oauth_provider):
                 base_url=oauth_provider.api_url, timeout=30.0, follow_redirects=True
             ) as http:
                 resp = await http.post(
-                    "/api/login",
+                    "/api/login/",
                     json={"username": email, "password": password},
                 )
         except httpx.HTTPError:
