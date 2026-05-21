@@ -67,6 +67,11 @@ def _create_app() -> FastMCP:
         async def login_post(request):
             return await handle_login_post(request)
 
+        @mcp.custom_route("/health", methods=["GET"])
+        async def health(request):
+            from starlette.responses import JSONResponse
+            return JSONResponse({"status": "ok"})
+
         return mcp
     else:
         return FastMCP(
