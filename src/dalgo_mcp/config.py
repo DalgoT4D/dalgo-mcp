@@ -19,7 +19,7 @@ class Config:
         self.password = os.environ.get("DALGO_PASSWORD", "")
         self.org_slug = os.environ.get("DALGO_ORG_SLUG", "")
         self.transport = os.environ.get("DALGO_TRANSPORT", "stdio")
-        self.host = os.environ.get("DALGO_HOST", "0.0.0.0")
+        self.host = os.environ.get("DALGO_HOST", "127.0.0.1")
         self.port = int(os.environ.get("DALGO_PORT", "8079"))
         # Public URL when behind a reverse proxy or tunnel (e.g. Cloudflare Tunnel).
         # Used as OAuth issuer/resource URL in metadata. Falls back to http://localhost:<port>.
