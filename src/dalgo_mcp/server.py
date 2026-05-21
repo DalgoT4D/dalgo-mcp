@@ -1,12 +1,37 @@
 import logging
+import json
 
 from mcp.server.fastmcp import FastMCP
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from dalgo_mcp.config import config
 from dalgo_mcp.client import DalgoClient, get_client_for_token
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG if config.debug else logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class DebugRequestMiddleware(BaseHTTPMiddleware):
+    """Logs method, path, headers, and body for every incoming request."""
+
+    async def dispatch(self, request: Request, call_next):
+        body = await request.body()
+        logger.debug(
+            ">>> %s %s\nHeaders: %s\nBody: %s",
+            request.method,
+            request.url,
+            dict(request.headers),
+            body.decode("utf-8", errors="replace")[:2000] if body else "(empty)",
+        )
+        response = await call_next(request)
+        logger.debug(
+            "<<< %s %s -> %s",
+            request.method,
+            request.url.path,
+            response.status_code,
+        )
+        return response
 
 
 def _create_app() -> FastMCP:
@@ -153,7 +178,28 @@ docs.register(app, get_client)
 
 def main():
     config.validate()
-    app.run(transport=config.transport)
+
+    if config.debug and config.transport == "streamable-http":
+        import anyio
+        import uvicorn
+
+        async def _run_debug_http():
+            starlette_app = app.streamable_http_app()
+            starlette_app.add_middleware(DebugRequestMiddleware)
+            server = uvicorn.Server(
+                uvicorn.Config(
+                    starlette_app,
+                    host=app.settings.host,
+                    port=app.settings.port,
+                    log_level="debug",
+                )
+            )
+            await server.serve()
+
+        logger.info("Starting in DEBUG mode — all requests will be logged")
+        anyio.run(_run_debug_http)
+    else:
+        app.run(transport=config.transport)
 
 
 if __name__ == "__main__":
