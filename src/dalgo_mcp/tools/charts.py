@@ -1,6 +1,9 @@
+import json
+
 from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.pii import mask_pii_in_rows
 
 
 def register(app: FastMCP, get_client):
@@ -60,10 +63,23 @@ def register(app: FastMCP, get_client):
     @app.tool()
     async def dalgo_get_chart_data(chart_id: str) -> str:
         """Execute a chart's query and return the resulting data.
+        PII columns (name, email, phone, address, etc.) are automatically masked.
 
         Args:
             chart_id: The chart ID.
         """
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/charts/{chart_id}/data/")
+        if resp.status_code < 400:
+            try:
+                body = resp.json()
+                if isinstance(body, list):
+                    return json.dumps(mask_pii_in_rows(body), indent=2, default=str)
+                if isinstance(body, dict):
+                    for key in ("data", "rows", "results"):
+                        if key in body and isinstance(body[key], list):
+                            body[key] = mask_pii_in_rows(body[key])
+                            return json.dumps(body, indent=2, default=str)
+            except Exception:
+                pass
         return format_response(resp)
