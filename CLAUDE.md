@@ -80,15 +80,26 @@ uv run dalgo-mcp
 
 ## Current State (as of 2026-05-27)
 
-- **No GitHub Actions workflows exist yet** — `.github/workflows/` directory is absent from the repo.
+- GitHub Actions workflows added (CI, publish, PR review) on branch `claude/github-actions-review-C6UME`
+- No test suite yet — CI will skip tests gracefully until one is added
 - Active development branch: `claude/github-actions-review-C6UME`
+
+## GitHub Actions (all in `.github/workflows/`)
+
+| Workflow | File | Trigger |
+|----------|------|---------|
+| CI (lint + test) | `ci.yml` | push to main, all PRs |
+| Publish to PyPI | `publish.yml` | push of `v*` tag |
+| Claude PR Review | `pr-review.yml` | PR opened / updated |
+
+**One-time setup required:**
+- Add `ANTHROPIC_API_KEY` to GitHub repo secrets (for PR review agent)
+- Configure PyPI trusted publishing for the `publish` job (Settings → Trusted Publishers on PyPI)
 
 ## Pending Work
 
-- [ ] Set up CI workflow (lint + tests on push/PR)
-- [ ] Set up PyPI publish workflow (on version tag)
-- [ ] Decide on linter (ruff is the standard for modern Python projects)
-- [ ] Add a test suite if none exists
+- [ ] Add a test suite (`tests/` directory with `pytest` test files)
+- [ ] Fix any `ruff` lint errors surfaced by CI on first run
 
 ## Notes for New Sessions
 
