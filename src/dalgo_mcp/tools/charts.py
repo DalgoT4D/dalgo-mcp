@@ -1,6 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.params import ChartId
 
 
 def register(app: FastMCP, get_client):
@@ -13,12 +14,8 @@ def register(app: FastMCP, get_client):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_chart(chart_id: str) -> str:
-        """Get details of a specific chart.
-
-        Args:
-            chart_id: The chart ID.
-        """
+    async def dalgo_get_chart(chart_id: ChartId) -> str:
+        """Get details of a specific chart."""
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/charts/{chart_id}/")
         return format_response(resp)
@@ -35,11 +32,10 @@ def register(app: FastMCP, get_client):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_update_chart(chart_id: str, chart_data: dict) -> str:
+    async def dalgo_update_chart(chart_id: ChartId, chart_data: dict) -> str:
         """Update an existing chart.
 
         Args:
-            chart_id: The chart ID.
             chart_data: Updated chart configuration dict.
         """
         client: DalgoClient = await get_client()
@@ -47,23 +43,15 @@ def register(app: FastMCP, get_client):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_delete_chart(chart_id: str) -> str:
-        """Delete a chart.
-
-        Args:
-            chart_id: The chart ID.
-        """
+    async def dalgo_delete_chart(chart_id: ChartId) -> str:
+        """Delete a chart."""
         client: DalgoClient = await get_client()
         resp = await client.delete(f"/api/charts/{chart_id}/")
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_chart_data(chart_id: str) -> str:
-        """Execute a chart's query and return the resulting data.
-
-        Args:
-            chart_id: The chart ID.
-        """
+    async def dalgo_get_chart_data(chart_id: ChartId) -> str:
+        """Execute a chart's query and return the resulting data."""
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/charts/{chart_id}/data/")
         return format_response(resp)

@@ -3,6 +3,7 @@ import json
 from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.params import Limit, Offset, SchemaName, TableName
 from dalgo_mcp.pii import mask_pii_in_rows
 
 
@@ -27,27 +28,16 @@ def register(app: FastMCP, get_client):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_table_columns(schema: str, table: str) -> str:
-        """Get column names and types for a specific warehouse table.
-
-        Args:
-            schema: Schema name.
-            table: Table name.
-        """
+    async def dalgo_get_table_columns(schema: SchemaName, table: TableName) -> str:
+        """Get column names and types for a specific warehouse table."""
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/warehouse/table_columns/{schema}/{table}")
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_table_data(schema: str, table: str, limit: int = 10, offset: int = 0) -> str:
+    async def dalgo_get_table_data(schema: SchemaName, table: TableName, limit: Limit = 10, offset: Offset = 0) -> str:
         """Fetch rows from a warehouse table. Defaults to 10 rows to avoid context overflow.
         PII columns (name, email, phone, address, etc.) are automatically masked.
-
-        Args:
-            schema: Schema name.
-            table: Table name.
-            limit: Maximum number of rows to return (default 10).
-            offset: Number of rows to skip (default 0).
         """
         client: DalgoClient = await get_client()
         resp = await client.get(
@@ -64,13 +54,8 @@ def register(app: FastMCP, get_client):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_table_row_count(schema: str, table: str) -> str:
-        """Get the total row count of a warehouse table.
-
-        Args:
-            schema: Schema name.
-            table: Table name.
-        """
+    async def dalgo_get_table_row_count(schema: SchemaName, table: TableName) -> str:
+        """Get the total row count of a warehouse table."""
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/warehouse/table_count/{schema}/{table}")
         return format_response(resp)
