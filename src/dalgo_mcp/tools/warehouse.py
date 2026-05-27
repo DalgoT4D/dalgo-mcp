@@ -2,16 +2,17 @@ import json
 
 from mcp.server.fastmcp import FastMCP
 
-from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.client import format_response
+from dalgo_mcp.context import adapt_context
 from dalgo_mcp.pii import mask_pii_in_rows
 
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool()
     async def dalgo_list_schemas() -> str:
         """List all schemas in the connected data warehouse."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/warehouse/schemas")
         return format_response(resp)
 
@@ -22,7 +23,7 @@ def register(app: FastMCP, get_client):
         Args:
             schema_name: Name of the schema to list tables from.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/warehouse/tables/{schema_name}")
         return format_response(resp)
 
@@ -34,7 +35,7 @@ def register(app: FastMCP, get_client):
             schema: Schema name.
             table: Table name.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/warehouse/table_columns/{schema}/{table}")
         return format_response(resp)
 
@@ -49,7 +50,7 @@ def register(app: FastMCP, get_client):
             limit: Maximum number of rows to return (default 10).
             offset: Number of rows to skip (default 0).
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(
             f"/api/warehouse/table_data/{schema}/{table}",
             params={"limit": limit, "offset": offset},
@@ -71,6 +72,6 @@ def register(app: FastMCP, get_client):
             schema: Schema name.
             table: Table name.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/warehouse/table_count/{schema}/{table}")
         return format_response(resp)
