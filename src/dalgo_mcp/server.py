@@ -1,5 +1,6 @@
 import logging
 import json
+import time
 
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -10,6 +11,9 @@ from dalgo_mcp.client import DalgoClient, get_client_for_token
 
 logging.basicConfig(level=logging.DEBUG if config.debug else logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Module-level start time for uptime tracking
+_start_time = time.time()
 
 
 class DebugRequestMiddleware(BaseHTTPMiddleware):
@@ -31,6 +35,38 @@ class DebugRequestMiddleware(BaseHTTPMiddleware):
             request.url.path,
             response.status_code,
         )
+        return response
+
+
+class ToolCallLoggingMiddleware(BaseHTTPMiddleware):
+    """Log MCP tool calls with timing and success/failure status."""
+
+    async def dispatch(self, request: Request, call_next):
+        tool_name = None
+
+        if request.method == "POST":
+            try:
+                body_bytes = await request.body()
+                data = json.loads(body_bytes)
+                if data.get("method") == "tools/call":
+                    tool_name = data.get("params", {}).get("name")
+            except Exception:
+                pass
+
+        t0 = time.monotonic()
+        response = await call_next(request)
+        duration_ms = (time.monotonic() - t0) * 1000
+
+        if tool_name:
+            success = response.status_code < 400
+            logger.info(
+                "tool_call tool=%s duration_ms=%.1f success=%s status_code=%d",
+                tool_name,
+                duration_ms,
+                success,
+                response.status_code,
+            )
+
         return response
 
 
@@ -97,8 +133,16 @@ def _create_app() -> FastMCP:
         @mcp.custom_route("/health", methods=["GET"])
         async def health(request):
             from starlette.responses import JSONResponse
+            from dalgo_mcp.client import _token_clients
 
-            return JSONResponse({"status": "ok"})
+            return JSONResponse(
+                {
+                    "status": "ok",
+                    "uptime_seconds": round(time.time() - _start_time, 1),
+                    "active_token_clients": len(_token_clients),
+                    "tool_count": len(mcp._tool_manager._tools),
+                }
+            )
 
         return mcp
     else:
@@ -185,6 +229,7 @@ def main():
 
         async def _run_debug_http():
             starlette_app = app.streamable_http_app()
+            starlette_app.add_middleware(ToolCallLoggingMiddleware)
             starlette_app.add_middleware(DebugRequestMiddleware)
             server = uvicorn.Server(
                 uvicorn.Config(
@@ -198,6 +243,24 @@ def main():
 
         logger.info("Starting in DEBUG mode — all requests will be logged")
         anyio.run(_run_debug_http)
+    elif config.transport == "streamable-http":
+        import anyio
+        import uvicorn
+
+        async def _run_http():
+            starlette_app = app.streamable_http_app()
+            starlette_app.add_middleware(ToolCallLoggingMiddleware)
+            server = uvicorn.Server(
+                uvicorn.Config(
+                    starlette_app,
+                    host=app.settings.host,
+                    port=app.settings.port,
+                    log_level=app.settings.log_level.lower(),
+                )
+            )
+            await server.serve()
+
+        anyio.run(_run_http)
     else:
         app.run(transport=config.transport)
 
