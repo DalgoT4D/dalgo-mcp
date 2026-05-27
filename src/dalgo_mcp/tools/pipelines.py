@@ -96,11 +96,34 @@ def register(app: FastMCP, get_client):
 
     @app.tool()
     async def dalgo_get_flow_run_logs(flow_run_id: str) -> str:
-        """Get logs for a specific flow run.
+        """Get logs for a specific flow run. Large logs are truncated to avoid context overflow —
+        the response includes metadata showing how many lines were omitted.
 
         Args:
             flow_run_id: The Prefect flow run ID.
         """
+        import json
+        from dalgo_mcp.truncate import truncate_log_text
+
         client: DalgoClient = await get_client()
         resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}/logs")
+
+        if resp.status_code < 400:
+            try:
+                data = resp.json()
+                # logs might be a string, a list of strings, or a dict with a 'logs' key
+                if isinstance(data, str):
+                    result = truncate_log_text(data)
+                    return json.dumps(result, indent=2)
+                elif isinstance(data, list):
+                    text = "\n".join(str(line) for line in data)
+                    result = truncate_log_text(text)
+                    return json.dumps(result, indent=2)
+                elif isinstance(data, dict) and "logs" in data:
+                    result = truncate_log_text(str(data["logs"]))
+                    data["logs"] = result["content"]
+                    data["_meta"] = result["_meta"]
+                    return json.dumps(data, indent=2, default=str)
+            except Exception:
+                pass
         return format_response(resp)
