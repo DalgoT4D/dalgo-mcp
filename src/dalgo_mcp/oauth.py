@@ -11,8 +11,6 @@ from dataclasses import dataclass
 
 import httpx
 import jwt
-from pydantic import AnyUrl
-
 from mcp.server.auth.provider import (
     AccessToken,
     AuthorizationCode,
@@ -70,9 +68,7 @@ class DalgoOAuthProvider(OAuthAuthorizationServerProvider):
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
         return self._clients.get(client_id)
 
-    async def register_client(
-        self, client_info: OAuthClientInformationFull
-    ) -> None:
+    async def register_client(self, client_info: OAuthClientInformationFull) -> None:
         self._clients[client_info.client_id] = client_info
         logger.info("Registered OAuth client: %s", client_info.client_id)
 
@@ -163,10 +159,8 @@ class DalgoOAuthProvider(OAuthAuthorizationServerProvider):
         try:
             payload = jwt.decode(dalgo_jwt, options={"verify_signature": False})
             exp = payload.get("exp")
-            user_id = str(payload.get("user_id", payload.get("sub", "unknown")))
         except jwt.DecodeError:
             exp = None
-            user_id = "unknown"
 
         # Store the access token so load_access_token can find it
         access_token = AccessToken(
@@ -321,9 +315,7 @@ class DalgoOAuthProvider(OAuthAuthorizationServerProvider):
 
     # ── Token revocation ─────────────────────────────────────────────
 
-    async def revoke_token(
-        self, token: AccessToken | RefreshToken
-    ) -> None:
+    async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
         if isinstance(token, AccessToken):
             self._access_tokens.pop(token.token, None)
         elif isinstance(token, RefreshToken):
