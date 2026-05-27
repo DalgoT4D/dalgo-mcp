@@ -1,25 +1,26 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import DalgoClient, format_response
 
 
 def register(app: FastMCP, get_client):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_notifications() -> str:
         """List recent notifications for the current user."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/notifications/v1")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_unread_count() -> str:
         """Get the count of unread notifications."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/notifications/unread_count")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def dalgo_mark_notifications_read(notification_ids: list[str] | None = None) -> str:
         """Mark notifications as read.
 

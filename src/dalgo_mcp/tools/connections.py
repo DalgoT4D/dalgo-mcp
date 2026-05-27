@@ -1,18 +1,19 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import DalgoClient, format_response
 
 
 def register(app: FastMCP, get_client):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_connections() -> str:
         """List all Airbyte connections (source-to-destination syncs) in the organization."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/airbyte/v1/connections")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_connection(connection_id: str) -> str:
         """Get details of a specific Airbyte connection.
 
@@ -23,7 +24,7 @@ def register(app: FastMCP, get_client):
         resp = await client.get(f"/api/airbyte/v1/connections/{connection_id}")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_sync_history(connection_id: str) -> str:
         """Get sync run history for an Airbyte connection.
 
@@ -34,7 +35,7 @@ def register(app: FastMCP, get_client):
         resp = await client.get(f"/api/airbyte/v1/connections/{connection_id}/sync/history")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_connection_catalog(connection_id: str) -> str:
         """Get the stream catalog for an Airbyte connection (selected streams and sync modes).
 

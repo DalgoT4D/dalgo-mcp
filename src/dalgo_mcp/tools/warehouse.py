@@ -1,6 +1,7 @@
 import json
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import DalgoClient, format_response
 from dalgo_mcp.pii import mask_pii_in_rows
@@ -8,14 +9,14 @@ from dalgo_mcp.pii import mask_pii_in_rows
 
 def register(app: FastMCP, get_client):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_schemas() -> str:
         """List all schemas in the connected data warehouse."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/warehouse/schemas")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_tables(schema_name: str) -> str:
         """List all tables in a specific warehouse schema.
 
@@ -26,7 +27,7 @@ def register(app: FastMCP, get_client):
         resp = await client.get(f"/api/warehouse/tables/{schema_name}")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_columns(schema: str, table: str) -> str:
         """Get column names and types for a specific warehouse table.
 
@@ -38,7 +39,7 @@ def register(app: FastMCP, get_client):
         resp = await client.get(f"/api/warehouse/table_columns/{schema}/{table}")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_data(schema: str, table: str, limit: int = 10, offset: int = 0) -> str:
         """Fetch rows from a warehouse table. Defaults to 10 rows to avoid context overflow.
         PII columns (name, email, phone, address, etc.) are automatically masked.
@@ -63,7 +64,7 @@ def register(app: FastMCP, get_client):
                 pass
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_row_count(schema: str, table: str) -> str:
         """Get the total row count of a warehouse table.
 

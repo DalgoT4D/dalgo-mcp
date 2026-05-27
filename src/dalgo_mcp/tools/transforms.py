@@ -1,25 +1,26 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import DalgoClient, format_response
 
 
 def register(app: FastMCP, get_client):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_dbt_workspace() -> str:
         """Get the dbt workspace configuration for the organization."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/dbt/dbt_workspace")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_git_status() -> str:
         """Get the git status of the dbt project repository (modified/untracked files)."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/dbt/git_status/")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_run_dbt(run_params: dict | None = None) -> str:
         """Trigger a dbt run via Celery (async task). Optionally pass command and flags.
 
@@ -30,14 +31,14 @@ def register(app: FastMCP, get_client):
         resp = await client.post("/api/dbt/run_dbt_via_celery/", json=run_params or {})
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_transform_graph() -> str:
         """Get the dbt project DAG (directed acyclic graph) showing model dependencies."""
         client: DalgoClient = await get_client()
         resp = await client.get("/api/transform/v2/dbt_project/graph/")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_sync_sources() -> str:
         """Sync dbt sources from the connected warehouse, updating the dbt project's source definitions."""
         client: DalgoClient = await get_client()
@@ -46,7 +47,7 @@ def register(app: FastMCP, get_client):
 
     # ── Read Tools ──────────────────────────────────────────────────────
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_sources_models(schema_name: str | None = None) -> str:
         """Get all available sources and models with their columns.
 
@@ -63,7 +64,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_node_details(node_uuid: str) -> str:
         """Get full details of a canvas node including its operation config and input nodes.
 
@@ -76,7 +77,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_node_columns(node_uuid: str) -> str:
         """Get column names and data types for a specific canvas node.
 
@@ -89,7 +90,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_data_types() -> str:
         """Get the list of warehouse-specific data types (used for cast operations)."""
         client: DalgoClient = await get_client()
@@ -98,7 +99,7 @@ def register(app: FastMCP, get_client):
 
     # ── Write Tools ─────────────────────────────────────────────────────
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_acquire_canvas_lock() -> str:
         """Acquire a lock on the transform canvas. Required before making any canvas modifications.
 
@@ -108,14 +109,14 @@ def register(app: FastMCP, get_client):
         resp = await client.post("/api/transform/dbt_project/canvas/lock/")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=False))
     async def dalgo_release_canvas_lock() -> str:
         """Release the lock on the transform canvas after modifications are complete."""
         client: DalgoClient = await get_client()
         resp = await client.delete("/api/transform/dbt_project/canvas/lock/")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_add_source_to_canvas(dbtmodel_uuid: str) -> str:
         """Add an existing source or model to the canvas as a node.
 
@@ -128,7 +129,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_create_operation(
         input_node_uuid: str,
         op_type: str,
@@ -163,7 +164,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def dalgo_edit_operation(
         node_uuid: str,
         op_type: str,
@@ -197,7 +198,7 @@ def register(app: FastMCP, get_client):
         )
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_terminate_chain(
         node_uuid: str,
         name: str,
@@ -225,7 +226,7 @@ def register(app: FastMCP, get_client):
 
     # ── Execute Tool ────────────────────────────────────────────────────
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def dalgo_publish_changes(commit_message: str) -> str:
         """Commit and push dbt project changes to git.
 
