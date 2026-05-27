@@ -1,6 +1,7 @@
-import httpx
 import json
 import logging
+
+import httpx
 
 from dalgo_mcp.config import config
 
@@ -42,11 +43,7 @@ class DalgoClient:
         if isinstance(data, list):
             if data:
                 first = data[0]
-                instance._org_slug = (
-                    first.get("org", {}).get("slug", "")
-                    if isinstance(first, dict)
-                    else ""
-                )
+                instance._org_slug = first.get("org", {}).get("slug", "") if isinstance(first, dict) else ""
         elif isinstance(data, dict):
             orgs = data.get("orguser", data.get("org", []))
             if isinstance(orgs, list) and orgs:
@@ -105,17 +102,13 @@ class DalgoClient:
         """Make an authenticated request with auto-refresh on 401."""
         await self.ensure_auth()
 
-        resp = await self._http.request(
-            method, path, headers=self._auth_headers(), **kwargs
-        )
+        resp = await self._http.request(method, path, headers=self._auth_headers(), **kwargs)
 
         if resp.status_code == 401:
             refreshed = await self._refresh()
             if not refreshed:
                 await self._login()
-            resp = await self._http.request(
-                method, path, headers=self._auth_headers(), **kwargs
-            )
+            resp = await self._http.request(method, path, headers=self._auth_headers(), **kwargs)
 
         return resp
 

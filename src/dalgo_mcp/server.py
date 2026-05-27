@@ -1,5 +1,4 @@
 import logging
-import json
 
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -37,8 +36,9 @@ def _create_app() -> FastMCP:
     """Create the FastMCP app with transport-appropriate settings."""
     if config.transport == "streamable-http":
         from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions
-        from dalgo_mcp.oauth import DalgoOAuthProvider
+
         from dalgo_mcp.login import create_login_handlers
+        from dalgo_mcp.oauth import DalgoOAuthProvider
 
         # When behind a reverse proxy/tunnel, use DALGO_PUBLIC_URL as the OAuth
         # issuer and resource URL. Otherwise fall back to localhost (the MCP SDK
