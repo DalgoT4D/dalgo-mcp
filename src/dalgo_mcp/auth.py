@@ -1,8 +1,6 @@
 import logging
-import time
 
 import jwt
-
 from mcp.server.auth.provider import AccessToken, TokenVerifier
 
 logger = logging.getLogger(__name__)

@@ -1,12 +1,11 @@
 import logging
-import json
 
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-from dalgo_mcp.config import config
 from dalgo_mcp.client import DalgoClient, get_client_for_token
+from dalgo_mcp.config import config
 
 logging.basicConfig(level=logging.DEBUG if config.debug else logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,8 +37,9 @@ def _create_app() -> FastMCP:
     """Create the FastMCP app with transport-appropriate settings."""
     if config.transport == "streamable-http":
         from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions
-        from dalgo_mcp.oauth import DalgoOAuthProvider
+
         from dalgo_mcp.login import create_login_handlers
+        from dalgo_mcp.oauth import DalgoOAuthProvider
 
         # When behind a reverse proxy/tunnel, use DALGO_PUBLIC_URL as the OAuth
         # issuer and resource URL. Otherwise fall back to localhost (the MCP SDK
@@ -140,9 +140,7 @@ async def get_client() -> DalgoClient:
 
         access_token = get_access_token()
         if access_token is None:
-            raise RuntimeError(
-                "No access token in request context (HTTP mode requires authentication)"
-            )
+            raise RuntimeError("No access token in request context (HTTP mode requires authentication)")
         return await get_client_for_token(access_token.token)
     else:
         if _client is None:
@@ -150,18 +148,20 @@ async def get_client() -> DalgoClient:
         return _client
 
 
-# Register all tool modules
-from dalgo_mcp.tools import organization
-from dalgo_mcp.tools import warehouse
-from dalgo_mcp.tools import pipelines
-from dalgo_mcp.tools import sources
-from dalgo_mcp.tools import connections
-from dalgo_mcp.tools import dashboards
-from dalgo_mcp.tools import charts
-from dalgo_mcp.tools import reports
-from dalgo_mcp.tools import transforms
-from dalgo_mcp.tools import notifications
-from dalgo_mcp.tools import docs
+# Register all tool modules  # noqa: E402
+from dalgo_mcp.tools import (  # noqa: E402
+    charts,
+    connections,
+    dashboards,
+    docs,
+    notifications,
+    organization,
+    pipelines,
+    reports,
+    sources,
+    transforms,
+    warehouse,
+)
 
 organization.register(app, get_client)
 warehouse.register(app, get_client)
