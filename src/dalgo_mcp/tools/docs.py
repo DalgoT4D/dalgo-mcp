@@ -19,103 +19,390 @@ from mcp.server.fastmcp import FastMCP
 
 DOCS_INDEX: list[dict] = [
     # --- Getting Started ---
-    {"path": "docs/welcome.md", "title": "Welcome to Dalgo", "section": "Getting Started", "keywords": ["introduction", "overview", "platform"]},
-
+    {
+        "path": "docs/welcome.md",
+        "title": "Welcome to Dalgo",
+        "section": "Getting Started",
+        "keywords": ["introduction", "overview", "platform"],
+    },
     # --- Quickstart ---
-    {"path": "docs/quickstart/index.md", "title": "Quickstart Guide", "section": "Quickstart", "keywords": ["getting started", "setup", "tutorial"]},
-    {"path": "docs/quickstart/account-setup.md", "title": "Account Setup", "section": "Quickstart", "keywords": ["account", "signup", "registration"]},
-    {"path": "docs/quickstart/impact.md", "title": "Impact Setup", "section": "Quickstart", "keywords": ["impact", "metrics", "KPIs"]},
-    {"path": "docs/quickstart/first-dashboard.md", "title": "First Dashboard", "section": "Quickstart", "keywords": ["dashboard", "visualization", "tutorial"]},
-    {"path": "docs/quickstart/first-report.md", "title": "First Report", "section": "Quickstart", "keywords": ["report", "snapshot", "tutorial"]},
-    {"path": "docs/quickstart/next-steps.md", "title": "Next Steps", "section": "Quickstart", "keywords": ["next steps", "advanced", "resources"]},
-
+    {
+        "path": "docs/quickstart/index.md",
+        "title": "Quickstart Guide",
+        "section": "Quickstart",
+        "keywords": ["getting started", "setup", "tutorial"],
+    },
+    {
+        "path": "docs/quickstart/account-setup.md",
+        "title": "Account Setup",
+        "section": "Quickstart",
+        "keywords": ["account", "signup", "registration"],
+    },
+    {
+        "path": "docs/quickstart/impact.md",
+        "title": "Impact Setup",
+        "section": "Quickstart",
+        "keywords": ["impact", "metrics", "KPIs"],
+    },
+    {
+        "path": "docs/quickstart/first-dashboard.md",
+        "title": "First Dashboard",
+        "section": "Quickstart",
+        "keywords": ["dashboard", "visualization", "tutorial"],
+    },
+    {
+        "path": "docs/quickstart/first-report.md",
+        "title": "First Report",
+        "section": "Quickstart",
+        "keywords": ["report", "snapshot", "tutorial"],
+    },
+    {
+        "path": "docs/quickstart/next-steps.md",
+        "title": "Next Steps",
+        "section": "Quickstart",
+        "keywords": ["next steps", "advanced", "resources"],
+    },
     # --- Concepts ---
-    {"path": "docs/concepts/glossary.md", "title": "Glossary", "section": "Concepts", "keywords": ["glossary", "terms", "definitions", "vocabulary"]},
-
+    {
+        "path": "docs/concepts/glossary.md",
+        "title": "Glossary",
+        "section": "Concepts",
+        "keywords": ["glossary", "terms", "definitions", "vocabulary"],
+    },
     # --- Impact ---
-    {"path": "docs/impact/index.md", "title": "Impact Overview", "section": "Impact", "keywords": ["impact", "home", "metrics", "KPIs", "indicators"]},
-
+    {
+        "path": "docs/impact/index.md",
+        "title": "Impact Overview",
+        "section": "Impact",
+        "keywords": ["impact", "home", "metrics", "KPIs", "indicators"],
+    },
     # --- Charts ---
-    {"path": "docs/charts/index.md", "title": "Charts Overview", "section": "Charts", "keywords": ["charts", "visualization", "analytics"]},
-    {"path": "docs/charts/creating-a-chart.md", "title": "Creating a Chart", "section": "Charts", "keywords": ["chart", "create", "SQL", "query"]},
-    {"path": "docs/charts/chart-types.md", "title": "Chart Types", "section": "Charts", "keywords": ["chart types", "bar", "line", "pie", "number"]},
-
+    {
+        "path": "docs/charts/index.md",
+        "title": "Charts Overview",
+        "section": "Charts",
+        "keywords": ["charts", "visualization", "analytics"],
+    },
+    {
+        "path": "docs/charts/creating-a-chart.md",
+        "title": "Creating a Chart",
+        "section": "Charts",
+        "keywords": ["chart", "create", "SQL", "query"],
+    },
+    {
+        "path": "docs/charts/chart-types.md",
+        "title": "Chart Types",
+        "section": "Charts",
+        "keywords": ["chart types", "bar", "line", "pie", "number"],
+    },
     # --- Dashboards ---
-    {"path": "docs/dashboards/index.md", "title": "Dashboards Overview", "section": "Dashboards", "keywords": ["dashboards", "visualization", "overview"]},
-    {"path": "docs/dashboards/viewing.md", "title": "Viewing Dashboards", "section": "Dashboards", "keywords": ["view", "dashboard", "display"]},
-    {"path": "docs/dashboards/creating.md", "title": "Creating Dashboards", "section": "Dashboards", "keywords": ["create", "dashboard", "new"]},
-    {"path": "docs/dashboards/superset-usage.md", "title": "Superset Usage", "section": "Dashboards", "keywords": ["superset", "apache", "analytics", "BI"]},
-    {"path": "docs/dashboards/superset.md", "title": "Superset Integration", "section": "Dashboards", "keywords": ["superset", "integration", "BI", "connect"]},
-
+    {
+        "path": "docs/dashboards/index.md",
+        "title": "Dashboards Overview",
+        "section": "Dashboards",
+        "keywords": ["dashboards", "visualization", "overview"],
+    },
+    {
+        "path": "docs/dashboards/viewing.md",
+        "title": "Viewing Dashboards",
+        "section": "Dashboards",
+        "keywords": ["view", "dashboard", "display"],
+    },
+    {
+        "path": "docs/dashboards/creating.md",
+        "title": "Creating Dashboards",
+        "section": "Dashboards",
+        "keywords": ["create", "dashboard", "new"],
+    },
+    {
+        "path": "docs/dashboards/superset-usage.md",
+        "title": "Superset Usage",
+        "section": "Dashboards",
+        "keywords": ["superset", "apache", "analytics", "BI"],
+    },
+    {
+        "path": "docs/dashboards/superset.md",
+        "title": "Superset Integration",
+        "section": "Dashboards",
+        "keywords": ["superset", "integration", "BI", "connect"],
+    },
     # --- Reports ---
-    {"path": "docs/reports/index.md", "title": "Reports Overview", "section": "Reports", "keywords": ["reports", "snapshots", "data"]},
-    {"path": "docs/reports/creating.md", "title": "Creating Reports", "section": "Reports", "keywords": ["create", "report", "new", "snapshot"]},
-    {"path": "docs/reports/comments.md", "title": "Report Comments", "section": "Reports", "keywords": ["comments", "collaboration", "feedback"]},
-    {"path": "docs/reports/sharing.md", "title": "Sharing Reports", "section": "Reports", "keywords": ["share", "report", "collaboration", "access"]},
-    {"path": "docs/reports/exporting.md", "title": "Exporting Reports", "section": "Reports", "keywords": ["export", "download", "PDF", "CSV"]},
-
+    {
+        "path": "docs/reports/index.md",
+        "title": "Reports Overview",
+        "section": "Reports",
+        "keywords": ["reports", "snapshots", "data"],
+    },
+    {
+        "path": "docs/reports/creating.md",
+        "title": "Creating Reports",
+        "section": "Reports",
+        "keywords": ["create", "report", "new", "snapshot"],
+    },
+    {
+        "path": "docs/reports/comments.md",
+        "title": "Report Comments",
+        "section": "Reports",
+        "keywords": ["comments", "collaboration", "feedback"],
+    },
+    {
+        "path": "docs/reports/sharing.md",
+        "title": "Sharing Reports",
+        "section": "Reports",
+        "keywords": ["share", "report", "collaboration", "access"],
+    },
+    {
+        "path": "docs/reports/exporting.md",
+        "title": "Exporting Reports",
+        "section": "Reports",
+        "keywords": ["export", "download", "PDF", "CSV"],
+    },
     # --- Data ---
-    {"path": "docs/data/index.md", "title": "Data Management", "section": "Data", "keywords": ["data", "management", "overview"]},
-    {"path": "docs/data/overview.md", "title": "Data Overview", "section": "Data", "keywords": ["data", "summary", "pipeline", "architecture"]},
-
+    {
+        "path": "docs/data/index.md",
+        "title": "Data Management",
+        "section": "Data",
+        "keywords": ["data", "management", "overview"],
+    },
+    {
+        "path": "docs/data/overview.md",
+        "title": "Data Overview",
+        "section": "Data",
+        "keywords": ["data", "summary", "pipeline", "architecture"],
+    },
     # --- Data > Ingest ---
-    {"path": "docs/data/ingest/index.md", "title": "Data Ingestion", "section": "Data > Ingest", "keywords": ["ingest", "ETL", "ELT", "sync"]},
-    {"path": "docs/data/ingest/connections.md", "title": "Connections", "section": "Data > Ingest", "keywords": ["connections", "airbyte", "sync", "source"]},
-    {"path": "docs/data/ingest/sources.md", "title": "Data Sources", "section": "Data > Ingest", "keywords": ["sources", "connectors", "airbyte"]},
-    {"path": "docs/data/ingest/warehouse.md", "title": "Warehouse Setup", "section": "Data > Ingest", "keywords": ["warehouse", "destination", "database", "BigQuery"]},
-
+    {
+        "path": "docs/data/ingest/index.md",
+        "title": "Data Ingestion",
+        "section": "Data > Ingest",
+        "keywords": ["ingest", "ETL", "ELT", "sync"],
+    },
+    {
+        "path": "docs/data/ingest/connections.md",
+        "title": "Connections",
+        "section": "Data > Ingest",
+        "keywords": ["connections", "airbyte", "sync", "source"],
+    },
+    {
+        "path": "docs/data/ingest/sources.md",
+        "title": "Data Sources",
+        "section": "Data > Ingest",
+        "keywords": ["sources", "connectors", "airbyte"],
+    },
+    {
+        "path": "docs/data/ingest/warehouse.md",
+        "title": "Warehouse Setup",
+        "section": "Data > Ingest",
+        "keywords": ["warehouse", "destination", "database", "BigQuery"],
+    },
     # --- Data > Transform ---
-    {"path": "docs/data/transform/index.md", "title": "Data Transformation", "section": "Data > Transform", "keywords": ["transform", "dbt", "models"]},
-    {"path": "docs/data/transform/ui-transform.md", "title": "UI Transformations", "section": "Data > Transform", "keywords": ["transform", "UI", "no-code", "visual"]},
-    {"path": "docs/data/transform/dbt-transform.md", "title": "dbt Transformations", "section": "Data > Transform", "keywords": ["dbt", "transform", "SQL", "models"]},
-    {"path": "docs/data/transform/switching-repositories.md", "title": "Switching Repositories", "section": "Data > Transform", "keywords": ["git", "repository", "switch", "dbt"]},
-
+    {
+        "path": "docs/data/transform/index.md",
+        "title": "Data Transformation",
+        "section": "Data > Transform",
+        "keywords": ["transform", "dbt", "models"],
+    },
+    {
+        "path": "docs/data/transform/ui-transform.md",
+        "title": "UI Transformations",
+        "section": "Data > Transform",
+        "keywords": ["transform", "UI", "no-code", "visual"],
+    },
+    {
+        "path": "docs/data/transform/dbt-transform.md",
+        "title": "dbt Transformations",
+        "section": "Data > Transform",
+        "keywords": ["dbt", "transform", "SQL", "models"],
+    },
+    {
+        "path": "docs/data/transform/switching-repositories.md",
+        "title": "Switching Repositories",
+        "section": "Data > Transform",
+        "keywords": ["git", "repository", "switch", "dbt"],
+    },
     # --- Data (continued) ---
-    {"path": "docs/data/orchestrate.md", "title": "Orchestration", "section": "Data", "keywords": ["orchestrate", "pipeline", "prefect", "schedule", "cron"]},
-    {"path": "docs/data/explore.md", "title": "Data Exploration", "section": "Data", "keywords": ["explore", "query", "data", "browse"]},
-    {"path": "docs/data/quality.md", "title": "Data Quality", "section": "Data", "keywords": ["quality", "testing", "validation", "checks"]},
-
+    {
+        "path": "docs/data/orchestrate.md",
+        "title": "Orchestration",
+        "section": "Data",
+        "keywords": ["orchestrate", "pipeline", "prefect", "schedule", "cron"],
+    },
+    {
+        "path": "docs/data/explore.md",
+        "title": "Data Exploration",
+        "section": "Data",
+        "keywords": ["explore", "query", "data", "browse"],
+    },
+    {
+        "path": "docs/data/quality.md",
+        "title": "Data Quality",
+        "section": "Data",
+        "keywords": ["quality", "testing", "validation", "checks"],
+    },
     # --- Settings ---
-    {"path": "docs/settings/index.md", "title": "Settings Overview", "section": "Settings", "keywords": ["settings", "configuration", "preferences"]},
-    {"path": "docs/settings/user-management.md", "title": "User Management", "section": "Settings", "keywords": ["users", "roles", "permissions", "invite"]},
-    {"path": "docs/settings/billing.md", "title": "Billing", "section": "Settings", "keywords": ["billing", "subscription", "payment", "plan"]},
-    {"path": "docs/settings/about.md", "title": "About", "section": "Settings", "keywords": ["about", "version", "info"]},
-
+    {
+        "path": "docs/settings/index.md",
+        "title": "Settings Overview",
+        "section": "Settings",
+        "keywords": ["settings", "configuration", "preferences"],
+    },
+    {
+        "path": "docs/settings/user-management.md",
+        "title": "User Management",
+        "section": "Settings",
+        "keywords": ["users", "roles", "permissions", "invite"],
+    },
+    {
+        "path": "docs/settings/billing.md",
+        "title": "Billing",
+        "section": "Settings",
+        "keywords": ["billing", "subscription", "payment", "plan"],
+    },
+    {
+        "path": "docs/settings/about.md",
+        "title": "About",
+        "section": "Settings",
+        "keywords": ["about", "version", "info"],
+    },
     # --- Support ---
-    {"path": "docs/support/index.md", "title": "Support Overview", "section": "Support", "keywords": ["support", "help", "contact"]},
-    {"path": "docs/support/getting-help.md", "title": "Getting Help", "section": "Support", "keywords": ["help", "support", "contact", "community"]},
-    {"path": "docs/support/troubleshooting.md", "title": "Troubleshooting", "section": "Support", "keywords": ["troubleshoot", "debug", "errors", "FAQ"]},
-
+    {
+        "path": "docs/support/index.md",
+        "title": "Support Overview",
+        "section": "Support",
+        "keywords": ["support", "help", "contact"],
+    },
+    {
+        "path": "docs/support/getting-help.md",
+        "title": "Getting Help",
+        "section": "Support",
+        "keywords": ["help", "support", "contact", "community"],
+    },
+    {
+        "path": "docs/support/troubleshooting.md",
+        "title": "Troubleshooting",
+        "section": "Support",
+        "keywords": ["troubleshoot", "debug", "errors", "FAQ"],
+    },
     # --- Self-Serve ---
-    {"path": "self-serve-docs/intro.md", "title": "Self-Serve Introduction", "section": "Self-Serve", "keywords": ["self-serve", "introduction", "overview"]},
-
+    {
+        "path": "self-serve-docs/intro.md",
+        "title": "Self-Serve Introduction",
+        "section": "Self-Serve",
+        "keywords": ["self-serve", "introduction", "overview"],
+    },
     # --- Self-Serve > Data Sources ---
-    {"path": "self-serve-docs/data-sources/adding-a-data-source.md", "title": "Adding a Data Source", "section": "Self-Serve > Data Sources", "keywords": ["data source", "add", "connector", "setup"]},
-
+    {
+        "path": "self-serve-docs/data-sources/adding-a-data-source.md",
+        "title": "Adding a Data Source",
+        "section": "Self-Serve > Data Sources",
+        "keywords": ["data source", "add", "connector", "setup"],
+    },
     # --- Self-Serve > Warehouse ---
-    {"path": "self-serve-docs/warehouse/aws-rds-setup.md", "title": "AWS RDS Setup", "section": "Self-Serve > Warehouse", "keywords": ["AWS", "RDS", "database", "setup", "PostgreSQL"]},
-
+    {
+        "path": "self-serve-docs/warehouse/aws-rds-setup.md",
+        "title": "AWS RDS Setup",
+        "section": "Self-Serve > Warehouse",
+        "keywords": ["AWS", "RDS", "database", "setup", "PostgreSQL"],
+    },
     # --- Self-Serve > Superset ---
-    {"path": "self-serve-docs/superset/row-level-security.md", "title": "Row-Level Security", "section": "Self-Serve > Superset", "keywords": ["superset", "RLS", "security", "permissions", "row-level"]},
-    {"path": "self-serve-docs/superset/user-and-role-management.md", "title": "User and Role Management", "section": "Self-Serve > Superset", "keywords": ["superset", "users", "roles", "permissions", "admin"]},
-    {"path": "self-serve-docs/superset/embedding-dashboards.md", "title": "Embedding Dashboards", "section": "Self-Serve > Superset", "keywords": ["superset", "embed", "iframe", "dashboard", "integration"]},
-
+    {
+        "path": "self-serve-docs/superset/row-level-security.md",
+        "title": "Row-Level Security",
+        "section": "Self-Serve > Superset",
+        "keywords": ["superset", "RLS", "security", "permissions", "row-level"],
+    },
+    {
+        "path": "self-serve-docs/superset/user-and-role-management.md",
+        "title": "User and Role Management",
+        "section": "Self-Serve > Superset",
+        "keywords": ["superset", "users", "roles", "permissions", "admin"],
+    },
+    {
+        "path": "self-serve-docs/superset/embedding-dashboards.md",
+        "title": "Embedding Dashboards",
+        "section": "Self-Serve > Superset",
+        "keywords": ["superset", "embed", "iframe", "dashboard", "integration"],
+    },
     # --- Self-Serve > Local Dev Setup ---
-    {"path": "self-serve-docs/local-dev-setup/index.md", "title": "Local Development Setup", "section": "Self-Serve > Local Dev Setup", "keywords": ["local", "development", "setup", "environment"]},
-    {"path": "self-serve-docs/local-dev-setup/dalgo-login.md", "title": "Dalgo Login", "section": "Self-Serve > Local Dev Setup", "keywords": ["login", "authentication", "credentials"]},
-    {"path": "self-serve-docs/local-dev-setup/warehouse-access.md", "title": "Warehouse Access", "section": "Self-Serve > Local Dev Setup", "keywords": ["warehouse", "access", "database", "connection"]},
-    {"path": "self-serve-docs/local-dev-setup/github-setup.md", "title": "GitHub Setup", "section": "Self-Serve > Local Dev Setup", "keywords": ["github", "git", "repository", "clone"]},
-    {"path": "self-serve-docs/local-dev-setup/python-and-ide.md", "title": "Python and IDE Setup", "section": "Self-Serve > Local Dev Setup", "keywords": ["python", "IDE", "vscode", "editor"]},
-    {"path": "self-serve-docs/local-dev-setup/ssh-access.md", "title": "SSH Access", "section": "Self-Serve > Local Dev Setup", "keywords": ["SSH", "remote", "access", "server"]},
-    {"path": "self-serve-docs/local-dev-setup/dbt-setup.md", "title": "dbt Setup", "section": "Self-Serve > Local Dev Setup", "keywords": ["dbt", "setup", "install", "local"]},
-    {"path": "self-serve-docs/local-dev-setup/dbt-profiles.md", "title": "dbt Profiles", "section": "Self-Serve > Local Dev Setup", "keywords": ["dbt", "profiles", "configuration", "profiles.yml"]},
-    {"path": "self-serve-docs/local-dev-setup/vaultwarden.md", "title": "Vaultwarden", "section": "Self-Serve > Local Dev Setup", "keywords": ["vaultwarden", "passwords", "secrets", "vault"]},
-    {"path": "self-serve-docs/local-dev-setup/ai-coding-assistants.md", "title": "AI Coding Assistants", "section": "Self-Serve > Local Dev Setup", "keywords": ["AI", "coding", "copilot", "assistant", "LLM"]},
-
+    {
+        "path": "self-serve-docs/local-dev-setup/index.md",
+        "title": "Local Development Setup",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["local", "development", "setup", "environment"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/dalgo-login.md",
+        "title": "Dalgo Login",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["login", "authentication", "credentials"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/warehouse-access.md",
+        "title": "Warehouse Access",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["warehouse", "access", "database", "connection"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/github-setup.md",
+        "title": "GitHub Setup",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["github", "git", "repository", "clone"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/python-and-ide.md",
+        "title": "Python and IDE Setup",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["python", "IDE", "vscode", "editor"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/ssh-access.md",
+        "title": "SSH Access",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["SSH", "remote", "access", "server"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/dbt-setup.md",
+        "title": "dbt Setup",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["dbt", "setup", "install", "local"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/dbt-profiles.md",
+        "title": "dbt Profiles",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["dbt", "profiles", "configuration", "profiles.yml"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/vaultwarden.md",
+        "title": "Vaultwarden",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["vaultwarden", "passwords", "secrets", "vault"],
+    },
+    {
+        "path": "self-serve-docs/local-dev-setup/ai-coding-assistants.md",
+        "title": "AI Coding Assistants",
+        "section": "Self-Serve > Local Dev Setup",
+        "keywords": ["AI", "coding", "copilot", "assistant", "LLM"],
+    },
     # --- Self-Serve > Learning Hub ---
-    {"path": "self-serve-docs/learning-hub/index.md", "title": "Learning Hub", "section": "Self-Serve > Learning Hub", "keywords": ["learning", "tutorials", "guides", "education"]},
-    {"path": "self-serve-docs/learning-hub/dbt-cheat-sheet.md", "title": "dbt Cheat Sheet", "section": "Self-Serve > Learning Hub", "keywords": ["dbt", "cheat sheet", "reference", "SQL", "commands"]},
-    {"path": "self-serve-docs/learning-hub/data-quality.md", "title": "Data Quality Guide", "section": "Self-Serve > Learning Hub", "keywords": ["data quality", "testing", "validation", "best practices"]},
+    {
+        "path": "self-serve-docs/learning-hub/index.md",
+        "title": "Learning Hub",
+        "section": "Self-Serve > Learning Hub",
+        "keywords": ["learning", "tutorials", "guides", "education"],
+    },
+    {
+        "path": "self-serve-docs/learning-hub/dbt-cheat-sheet.md",
+        "title": "dbt Cheat Sheet",
+        "section": "Self-Serve > Learning Hub",
+        "keywords": ["dbt", "cheat sheet", "reference", "SQL", "commands"],
+    },
+    {
+        "path": "self-serve-docs/learning-hub/data-quality.md",
+        "title": "Data Quality Guide",
+        "section": "Self-Serve > Learning Hub",
+        "keywords": ["data quality", "testing", "validation", "best practices"],
+    },
 ]
 
 # ---------------------------------------------------------------------------
@@ -179,6 +466,7 @@ def _find_doc_entry(path: str) -> dict | None:
 # Search scoring
 # ---------------------------------------------------------------------------
 
+
 def _score_entry(entry: dict, terms: list[str]) -> int:
     """Score a doc entry against search terms.
 
@@ -207,7 +495,7 @@ def _score_entry(entry: dict, terms: list[str]) -> int:
 # Tool registration
 # ---------------------------------------------------------------------------
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool()
     async def dalgo_list_docs() -> str:
@@ -224,15 +512,20 @@ def register(app: FastMCP, get_client):
             section = entry["section"]
             if section not in sections:
                 sections[section] = []
-            sections[section].append({
-                "path": entry["path"],
-                "title": entry["title"],
-            })
+            sections[section].append(
+                {
+                    "path": entry["path"],
+                    "title": entry["title"],
+                }
+            )
 
-        return json.dumps({
-            "total_docs": len(DOCS_INDEX),
-            "sections": sections,
-        }, indent=2)
+        return json.dumps(
+            {
+                "total_docs": len(DOCS_INDEX),
+                "sections": sections,
+            },
+            indent=2,
+        )
 
     @app.tool()
     async def dalgo_search_docs(query: str) -> str:
@@ -248,7 +541,9 @@ def register(app: FastMCP, get_client):
             query: Search query (e.g. "dbt transform", "dashboard", "setup").
         """
         if not query or not query.strip():
-            return json.dumps({"error": "Query cannot be empty. Provide a search term like 'dbt', 'dashboard', or 'setup'."})
+            return json.dumps(
+                {"error": "Query cannot be empty. Provide a search term like 'dbt', 'dashboard', or 'setup'."}
+            )
 
         terms = [t.lower() for t in query.strip().split() if t]
 
@@ -263,20 +558,25 @@ def register(app: FastMCP, get_client):
 
         results = []
         for score, entry in top:
-            results.append({
-                "path": entry["path"],
-                "title": entry["title"],
-                "section": entry["section"],
-                "relevance_score": score,
-            })
+            results.append(
+                {
+                    "path": entry["path"],
+                    "title": entry["title"],
+                    "section": entry["section"],
+                    "relevance_score": score,
+                }
+            )
 
-        return json.dumps({
-            "query": query,
-            "total_results": len(scored),
-            "showing": len(results),
-            "results": results,
-            "hint": "Use dalgo_get_doc(path='...') to read the full content of any result.",
-        }, indent=2)
+        return json.dumps(
+            {
+                "query": query,
+                "total_results": len(scored),
+                "showing": len(results),
+                "results": results,
+                "hint": "Use dalgo_get_doc(path='...') to read the full content of any result.",
+            },
+            indent=2,
+        )
 
     @app.tool()
     async def dalgo_get_doc(path: str) -> str:
@@ -290,27 +590,33 @@ def register(app: FastMCP, get_client):
                   "self-serve-docs/learning-hub/dbt-cheat-sheet.md").
         """
         if not path or not path.strip():
-            return json.dumps({"error": "Path cannot be empty. Use dalgo_search_docs or dalgo_list_docs to find valid paths."})
+            return json.dumps(
+                {"error": "Path cannot be empty. Use dalgo_search_docs or dalgo_list_docs to find valid paths."}
+            )
 
         path = path.strip()
 
         # Validate path prefix
         if not path.startswith(_VALID_PATH_PREFIXES):
-            return json.dumps({
-                "error": f"Invalid path: '{path}'. Path must start with 'docs/' or 'self-serve-docs/'.",
-                "hint": "Use dalgo_search_docs or dalgo_list_docs to find valid paths.",
-            })
+            return json.dumps(
+                {
+                    "error": f"Invalid path: '{path}'. Path must start with 'docs/' or 'self-serve-docs/'.",
+                    "hint": "Use dalgo_search_docs or dalgo_list_docs to find valid paths.",
+                }
+            )
 
         # Check cache first
         cached = _get_cached(path)
         if cached is not None:
             entry = _find_doc_entry(path)
-            return json.dumps({
-                "path": path,
-                "title": entry["title"] if entry else path,
-                "content": cached,
-                "source": "cache",
-            })
+            return json.dumps(
+                {
+                    "path": path,
+                    "title": entry["title"] if entry else path,
+                    "content": cached,
+                    "source": "cache",
+                }
+            )
 
         # Fetch from GitHub
         url = f"{_GITHUB_RAW_BASE}/{path}"
@@ -319,10 +625,12 @@ def register(app: FastMCP, get_client):
             resp = await client.get(url)
 
             if resp.status_code == 404:
-                return json.dumps({
-                    "error": f"Document not found: '{path}'.",
-                    "hint": "Use dalgo_search_docs or dalgo_list_docs to find valid paths.",
-                })
+                return json.dumps(
+                    {
+                        "error": f"Document not found: '{path}'.",
+                        "hint": "Use dalgo_search_docs or dalgo_list_docs to find valid paths.",
+                    }
+                )
 
             resp.raise_for_status()
             content = resp.text
@@ -331,42 +639,52 @@ def register(app: FastMCP, get_client):
             _put_cache(path, content)
 
             entry = _find_doc_entry(path)
-            return json.dumps({
-                "path": path,
-                "title": entry["title"] if entry else path,
-                "content": content,
-                "source": "github",
-            })
+            return json.dumps(
+                {
+                    "path": path,
+                    "title": entry["title"] if entry else path,
+                    "content": content,
+                    "source": "github",
+                }
+            )
 
         except httpx.HTTPStatusError as e:
             # Return cached content if available despite error
             stale = _doc_cache.get(path)
             if stale:
                 entry = _find_doc_entry(path)
-                return json.dumps({
+                return json.dumps(
+                    {
+                        "path": path,
+                        "title": entry["title"] if entry else path,
+                        "content": stale[0],
+                        "source": "stale_cache",
+                        "warning": f"GitHub returned HTTP {e.response.status_code}. Showing cached content.",
+                    }
+                )
+            return json.dumps(
+                {
+                    "error": f"Failed to fetch document: HTTP {e.response.status_code}",
                     "path": path,
-                    "title": entry["title"] if entry else path,
-                    "content": stale[0],
-                    "source": "stale_cache",
-                    "warning": f"GitHub returned HTTP {e.response.status_code}. Showing cached content.",
-                })
-            return json.dumps({
-                "error": f"Failed to fetch document: HTTP {e.response.status_code}",
-                "path": path,
-            })
+                }
+            )
 
         except httpx.HTTPError as e:
             stale = _doc_cache.get(path)
             if stale:
                 entry = _find_doc_entry(path)
-                return json.dumps({
+                return json.dumps(
+                    {
+                        "path": path,
+                        "title": entry["title"] if entry else path,
+                        "content": stale[0],
+                        "source": "stale_cache",
+                        "warning": f"GitHub fetch failed: {e}. Showing cached content.",
+                    }
+                )
+            return json.dumps(
+                {
+                    "error": f"Failed to fetch document: {e}",
                     "path": path,
-                    "title": entry["title"] if entry else path,
-                    "content": stale[0],
-                    "source": "stale_cache",
-                    "warning": f"GitHub fetch failed: {e}. Showing cached content.",
-                })
-            return json.dumps({
-                "error": f"Failed to fetch document: {e}",
-                "path": path,
-            })
+                }
+            )
