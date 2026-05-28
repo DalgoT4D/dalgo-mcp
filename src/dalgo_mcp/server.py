@@ -124,17 +124,19 @@ def _create_app() -> FastMCP:
 app = _create_app()
 
 # Register all tool modules
-from dalgo_mcp.tools import organization
-from dalgo_mcp.tools import warehouse
-from dalgo_mcp.tools import pipelines
-from dalgo_mcp.tools import sources
-from dalgo_mcp.tools import connections
-from dalgo_mcp.tools import dashboards
-from dalgo_mcp.tools import charts
-from dalgo_mcp.tools import reports
-from dalgo_mcp.tools import transforms
-from dalgo_mcp.tools import notifications
-from dalgo_mcp.tools import docs
+from dalgo_mcp.tools import (  # noqa: E402
+    charts,
+    connections,
+    dashboards,
+    docs,
+    notifications,
+    organization,
+    pipelines,
+    reports,
+    sources,
+    transforms,
+    warehouse,
+)
 
 organization.register(app)
 warehouse.register(app)
