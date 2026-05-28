@@ -495,6 +495,7 @@ def _score_entry(entry: dict, terms: list[str]) -> int:
 # Tool registration
 # ---------------------------------------------------------------------------
 
+
 def register(app: FastMCP):
 
     @app.tool()

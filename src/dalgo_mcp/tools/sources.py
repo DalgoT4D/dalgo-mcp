@@ -2,6 +2,7 @@ from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
+from dalgo_mcp.params import SourceId
 
 
 def register(app: FastMCP):
@@ -14,7 +15,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_source(source_id: str) -> str:
+    async def dalgo_get_source(source_id: SourceId) -> str:
         """Get details of a specific data source.
 
         Args:
@@ -32,7 +33,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_delete_source(source_id: str) -> str:
+    async def dalgo_delete_source(source_id: SourceId) -> str:
         """Delete a data source.
 
         Args:
