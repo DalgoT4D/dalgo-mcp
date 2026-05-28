@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Lint with ruff
+        run: uv run ruff check src/
+
+      - name: Check formatting
+        run: uv run ruff format --check src/
+
+      - name: Run tests
+        run: uv run pytest -v || [ $? -eq 5 ]
+
+      - name: Smoke test — MCP server starts and tools register
+        env:
+          DALGO_API_URL: http://localhost:8002
+          DALGO_USERNAME: ci@example.com
+          DALGO_PASSWORD: ci-password
+          DALGO_ORG_SLUG: ci-org
+        run: |
+          uv run python - <<'EOF'
+          import asyncio
+          from dalgo_mcp.server import app
+
+          tools = asyncio.run(app.list_tools())
+          print(f"MCP server OK — {len(tools)} tools registered")
+          for t in tools:
+              print(f"  - {t.name}")
+          assert len(tools) > 0, "No tools registered — something is broken"
+          EOF
