@@ -1,15 +1,16 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
-from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.client import format_response
+from dalgo_mcp.context import adapt_context
 
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_connections() -> str:
         """List all Airbyte connections (source-to-destination syncs) in the organization."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/airbyte/v1/connections")
         return format_response(resp)
 
@@ -20,7 +21,7 @@ def register(app: FastMCP, get_client):
         Args:
             connection_id: The Airbyte connection ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/airbyte/v1/connections/{connection_id}")
         return format_response(resp)
 
@@ -31,7 +32,7 @@ def register(app: FastMCP, get_client):
         Args:
             connection_id: The Airbyte connection ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/airbyte/v1/connections/{connection_id}/sync/history")
         return format_response(resp)
 
@@ -42,6 +43,6 @@ def register(app: FastMCP, get_client):
         Args:
             connection_id: The Airbyte connection ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/airbyte/v1/connections/{connection_id}/catalog")
         return format_response(resp)
