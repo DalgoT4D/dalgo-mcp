@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
 import httpx
+import pytest
 
 
 @pytest.fixture
@@ -13,6 +14,7 @@ def mock_client():
 def get_client(mock_client):
     async def _get_client():
         return mock_client
+
     return _get_client
 
 

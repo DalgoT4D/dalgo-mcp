@@ -1,21 +1,22 @@
 from mcp.server.fastmcp import FastMCP
 
-from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.client import format_response
+from dalgo_mcp.context import adapt_context
 
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool()
     async def dalgo_get_dbt_workspace() -> str:
         """Get the dbt workspace configuration for the organization."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/dbt/dbt_workspace")
         return format_response(resp)
 
     @app.tool()
     async def dalgo_get_git_status() -> str:
         """Get the git status of the dbt project repository (modified/untracked files)."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/dbt/git_status/")
         return format_response(resp)
 
@@ -26,21 +27,21 @@ def register(app: FastMCP, get_client):
         Args:
             run_params: Optional dict with dbt run parameters (e.g. command, select, exclude).
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post("/api/dbt/run_dbt_via_celery/", json=run_params or {})
         return format_response(resp)
 
     @app.tool()
     async def dalgo_get_transform_graph() -> str:
         """Get the dbt project DAG (directed acyclic graph) showing model dependencies."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/transform/v2/dbt_project/graph/")
         return format_response(resp)
 
     @app.tool()
     async def dalgo_sync_sources() -> str:
         """Sync dbt sources from the connected warehouse, updating the dbt project's source definitions."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post("/api/transform/dbt_project/sync_sources/")
         return format_response(resp)
 
@@ -53,7 +54,7 @@ def register(app: FastMCP, get_client):
         Args:
             schema_name: Optional schema name to filter results.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         params = {}
         if schema_name:
             params["schema_name"] = schema_name
@@ -70,7 +71,7 @@ def register(app: FastMCP, get_client):
         Args:
             node_uuid: UUID of the canvas node.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(
             f"/api/transform/v2/dbt_project/nodes/{node_uuid}/",
         )
@@ -83,7 +84,7 @@ def register(app: FastMCP, get_client):
         Args:
             node_uuid: UUID of the canvas node.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(
             f"/api/transform/v2/dbt_project/nodes/{node_uuid}/columns/",
         )
@@ -92,7 +93,7 @@ def register(app: FastMCP, get_client):
     @app.tool()
     async def dalgo_get_data_types() -> str:
         """Get the list of warehouse-specific data types (used for cast operations)."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/transform/dbt_project/data_type/")
         return format_response(resp)
 
@@ -104,14 +105,14 @@ def register(app: FastMCP, get_client):
 
         Returns lock_token, expires_at, and locked_by.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post("/api/transform/dbt_project/canvas/lock/")
         return format_response(resp)
 
     @app.tool()
     async def dalgo_release_canvas_lock() -> str:
         """Release the lock on the transform canvas after modifications are complete."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.delete("/api/transform/dbt_project/canvas/lock/")
         return format_response(resp)
 
@@ -122,7 +123,7 @@ def register(app: FastMCP, get_client):
         Args:
             dbtmodel_uuid: UUID of the dbt source/model to add.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post(
             f"/api/transform/v2/dbt_project/models/{dbtmodel_uuid}/nodes/",
         )
@@ -148,7 +149,7 @@ def register(app: FastMCP, get_client):
             source_columns: List of column names from the input node to use.
             other_inputs: Optional list of additional input nodes (used for join/unionall).
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         body = {
             "input_node_uuid": input_node_uuid,
             "op_type": op_type,
@@ -183,7 +184,7 @@ def register(app: FastMCP, get_client):
             source_columns: Updated list of column names from the input node.
             other_inputs: Optional list of additional input nodes (used for join/unionall).
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         body = {
             "op_type": op_type,
             "config": config,
@@ -212,7 +213,7 @@ def register(app: FastMCP, get_client):
             display_name: Human-readable display name.
             dest_schema: Destination schema in the warehouse.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post(
             f"/api/transform/v2/dbt_project/operations/nodes/{node_uuid}/terminate/",
             json={
@@ -232,7 +233,7 @@ def register(app: FastMCP, get_client):
         Args:
             commit_message: Git commit message describing the changes.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post(
             "/api/dbt/publish_changes/",
             json={"commit_message": commit_message},

@@ -1,6 +1,5 @@
 """Unit tests for PII detection and masking logic in dalgo_mcp.pii."""
 
-import pytest
 from dalgo_mcp.pii import is_pii_column, mask_pii_in_rows
 
 

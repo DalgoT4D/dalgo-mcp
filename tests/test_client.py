@@ -1,8 +1,8 @@
 """Unit tests for format_response in dalgo_mcp.client."""
 
 import json
-import pytest
 from unittest.mock import MagicMock
+
 import httpx
 
 from dalgo_mcp.client import format_response

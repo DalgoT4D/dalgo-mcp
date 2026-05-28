@@ -1,14 +1,15 @@
 """Unit tests for pipelines tool module."""
 
 import json
-import pytest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
+import pytest
 from mcp.server.fastmcp import FastMCP
+
 from tests.conftest import make_response
 
 
-def register_tools(get_client):
+def register_tools():
     """Register pipeline tools and capture the inner functions for direct testing."""
     from dalgo_mcp.tools import pipelines
 
@@ -18,13 +19,15 @@ def register_tools(get_client):
 
     def capturing_tool(*args, **kwargs):
         decorator = original_tool(*args, **kwargs)
+
         def wrapper(fn):
             captured[fn.__name__] = fn
             return decorator(fn)
+
         return wrapper
 
     app.tool = capturing_tool
-    pipelines.register(app, get_client)
+    pipelines.register(app)
     return captured
 
 
@@ -34,15 +37,9 @@ def mock_client():
 
 
 @pytest.fixture
-def get_client(mock_client):
-    async def _get_client():
-        return mock_client
-    return _get_client
-
-
-@pytest.fixture
-def tools(get_client):
-    return register_tools(get_client)
+def tools(mock_client):
+    with patch("dalgo_mcp.tools.pipelines.adapt_context", new=AsyncMock(return_value=mock_client)):
+        yield register_tools()
 
 
 class TestDalgoListPipelines:
@@ -80,9 +77,7 @@ class TestDalgoTriggerPipelineRun:
         data = json.loads(result)
 
         assert data["flow_run_id"] == "run-123"
-        mock_client.post.assert_called_once_with(
-            "/api/prefect/v1/flows/deploy-abc/flow_run/"
-        )
+        mock_client.post.assert_called_once_with("/api/prefect/v1/flows/deploy-abc/flow_run/")
 
     @pytest.mark.asyncio
     async def test_error_on_bad_deployment_id(self, tools, mock_client):
