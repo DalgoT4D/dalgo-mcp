@@ -4,6 +4,7 @@ Use these Annotated types as function parameter annotations to get
 consistent descriptions across tools. FastMCP reads the Annotated
 metadata to generate parameter descriptions in the tool schema.
 """
+
 from typing import Annotated
 
 from pydantic import Field

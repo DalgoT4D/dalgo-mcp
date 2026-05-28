@@ -1,0 +1,40 @@
+name: Update PRs with main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  update-prs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Update all open PRs with latest main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_numbers=$(gh pr list \
+            --repo ${{ github.repository }} \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[].number')
+
+          if [ -z "$pr_numbers" ]; then
+            echo "No open PRs to update."
+            exit 0
+          fi
+
+          for pr in $pr_numbers; do
+            echo "Updating PR #$pr..."
+            if gh api repos/${{ github.repository }}/pulls/$pr/update-branch \
+              -X PUT \
+              -H "Accept: application/vnd.github+json" > /dev/null 2>&1; then
+              echo "  ✓ PR #$pr updated"
+            else
+              echo "  ✗ PR #$pr has conflicts or is already up to date — skipping"
+            fi
+          done
