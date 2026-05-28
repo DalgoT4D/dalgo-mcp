@@ -2,6 +2,7 @@ from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
+from dalgo_mcp.params import DashboardId
 
 
 def register(app: FastMCP):
@@ -14,7 +15,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_dashboard(dashboard_id: str) -> str:
+    async def dalgo_get_dashboard(dashboard_id: DashboardId) -> str:
         """Get details of a specific dashboard including its charts.
 
         Args:
@@ -36,11 +37,10 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_update_dashboard(dashboard_id: str, dashboard_data: dict) -> str:
+    async def dalgo_update_dashboard(dashboard_id: DashboardId, dashboard_data: dict) -> str:
         """Update an existing dashboard.
 
         Args:
-            dashboard_id: The dashboard ID.
             dashboard_data: Updated dashboard configuration dict.
         """
         client = await adapt_context()
@@ -48,7 +48,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_delete_dashboard(dashboard_id: str) -> str:
+    async def dalgo_delete_dashboard(dashboard_id: DashboardId) -> str:
         """Delete a dashboard.
 
         Args:
