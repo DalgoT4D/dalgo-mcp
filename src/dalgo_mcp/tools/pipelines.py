@@ -1,14 +1,15 @@
 from mcp.server.fastmcp import FastMCP
 
-from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.client import format_response
+from dalgo_mcp.context import adapt_context
 
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool()
     async def dalgo_list_pipelines() -> str:
         """List all orchestration pipelines (Prefect deployments) in the organization."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/prefect/v1/flows/")
         return format_response(resp)
 
@@ -19,7 +20,7 @@ def register(app: FastMCP, get_client):
         Args:
             deployment_id: The Prefect deployment ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/prefect/v1/flows/{deployment_id}")
         return format_response(resp)
 
@@ -30,7 +31,7 @@ def register(app: FastMCP, get_client):
         Args:
             pipeline_data: Pipeline configuration dict with connection_id, cron schedule, and transform settings.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post("/api/prefect/v1/flows/", json=pipeline_data)
         return format_response(resp)
 
@@ -42,7 +43,7 @@ def register(app: FastMCP, get_client):
             deployment_id: The Prefect deployment ID.
             pipeline_data: Updated pipeline configuration dict.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.put(f"/api/prefect/v1/flows/{deployment_id}", json=pipeline_data)
         return format_response(resp)
 
@@ -53,7 +54,7 @@ def register(app: FastMCP, get_client):
         Args:
             deployment_id: The Prefect deployment ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.delete(f"/api/prefect/v1/flows/{deployment_id}")
         return format_response(resp)
 
@@ -64,7 +65,7 @@ def register(app: FastMCP, get_client):
         Args:
             deployment_id: The Prefect deployment ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.post(f"/api/prefect/v1/flows/{deployment_id}/flow_run/")
         return format_response(resp)
 
@@ -76,7 +77,7 @@ def register(app: FastMCP, get_client):
             deployment_id: The Prefect deployment ID.
             limit: Maximum number of runs to return (default 10).
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(
             f"/api/prefect/v1/flows/{deployment_id}/flow_runs/history",
             params={"limit": limit},
@@ -90,7 +91,7 @@ def register(app: FastMCP, get_client):
         Args:
             flow_run_id: The Prefect flow run ID.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}")
         return format_response(resp)
 
@@ -103,9 +104,10 @@ def register(app: FastMCP, get_client):
             flow_run_id: The Prefect flow run ID.
         """
         import json
+
         from dalgo_mcp.truncate import truncate_log_text
 
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}/logs")
 
         if resp.status_code < 400:

@@ -25,11 +25,7 @@ def truncate_log_text(text: str, max_lines: int = MAX_LOG_LINES) -> dict:
     tail = lines[-half:]
     omitted = len(lines) - max_lines
 
-    truncated_text = (
-        "\n".join(head)
-        + f"\n\n... [{omitted} lines omitted] ...\n\n"
-        + "\n".join(tail)
-    )
+    truncated_text = "\n".join(head) + f"\n\n... [{omitted} lines omitted] ...\n\n" + "\n".join(tail)
     return {
         "content": truncated_text,
         "_meta": {
@@ -37,10 +33,7 @@ def truncate_log_text(text: str, max_lines: int = MAX_LOG_LINES) -> dict:
             "total_lines": len(lines),
             "shown": max_lines,
             "omitted": omitted,
-            "note": (
-                f"Showing first {half} and last {half} lines. "
-                "Full logs available in Dalgo UI."
-            ),
+            "note": (f"Showing first {half} and last {half} lines. Full logs available in Dalgo UI."),
         },
     }
 
