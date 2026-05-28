@@ -4,7 +4,6 @@ from mcp.server.fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-from dalgo_mcp.client import DalgoClient, get_client_for_token
 from dalgo_mcp.config import config
 
 logging.basicConfig(level=logging.DEBUG if config.debug else logging.INFO)
@@ -124,56 +123,30 @@ def _create_app() -> FastMCP:
 
 app = _create_app()
 
-_client: DalgoClient | None = None
+# Register all tool modules
+from dalgo_mcp.tools import organization
+from dalgo_mcp.tools import warehouse
+from dalgo_mcp.tools import pipelines
+from dalgo_mcp.tools import sources
+from dalgo_mcp.tools import connections
+from dalgo_mcp.tools import dashboards
+from dalgo_mcp.tools import charts
+from dalgo_mcp.tools import reports
+from dalgo_mcp.tools import transforms
+from dalgo_mcp.tools import notifications
+from dalgo_mcp.tools import docs
 
-
-async def get_client() -> DalgoClient:
-    """Get the appropriate DalgoClient for the current context.
-
-    In stdio mode: returns a global singleton (username/password auth).
-    In HTTP mode: returns a per-token client based on the request's Bearer token.
-    """
-    global _client
-
-    if config.transport == "streamable-http":
-        from mcp.server.auth.middleware.auth_context import get_access_token
-
-        access_token = get_access_token()
-        if access_token is None:
-            raise RuntimeError("No access token in request context (HTTP mode requires authentication)")
-        return await get_client_for_token(access_token.token)
-    else:
-        if _client is None:
-            _client = DalgoClient()
-        return _client
-
-
-# Register all tool modules  # noqa: E402
-from dalgo_mcp.tools import (  # noqa: E402
-    charts,
-    connections,
-    dashboards,
-    docs,
-    notifications,
-    organization,
-    pipelines,
-    reports,
-    sources,
-    transforms,
-    warehouse,
-)
-
-organization.register(app, get_client)
-warehouse.register(app, get_client)
-pipelines.register(app, get_client)
-sources.register(app, get_client)
-connections.register(app, get_client)
-dashboards.register(app, get_client)
-charts.register(app, get_client)
-reports.register(app, get_client)
-transforms.register(app, get_client)
-notifications.register(app, get_client)
-docs.register(app, get_client)
+organization.register(app)
+warehouse.register(app)
+pipelines.register(app)
+sources.register(app)
+connections.register(app)
+dashboards.register(app)
+charts.register(app)
+reports.register(app)
+transforms.register(app)
+notifications.register(app)
+docs.register(app)
 
 
 def main():
