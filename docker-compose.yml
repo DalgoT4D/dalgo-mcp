@@ -1,0 +1,16 @@
+services:
+  dalgo-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dalgo-mcp:latest
+    container_name: dalgo-mcp
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DALGO_TRANSPORT: streamable-http
+      DALGO_HOST: 0.0.0.0
+      DALGO_PORT: 8079
+    ports:
+      - "8079:8079"
