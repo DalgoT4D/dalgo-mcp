@@ -179,6 +179,26 @@ response = client.messages.create(
 
 The `authorization_token` is a Dalgo JWT. Each user passes their own token and the server auto-detects their org.
 
+### Docker
+
+The image runs in `streamable-http` mode on port `8079` by default.
+
+```bash
+cp .env.example .env
+# Edit .env — at minimum, set DALGO_API_URL
+
+docker build -t dalgo-mcp .
+docker run --rm -p 8079:8079 --env-file .env dalgo-mcp
+```
+
+Or with Compose:
+
+```bash
+docker compose up --build
+```
+
+The server will be reachable at `http://localhost:8079/`. Point the Anthropic MCP connector at that URL and pass each user's Dalgo JWT as the `authorization_token`.
+
 ## Auth
 
 | Mode | Auth method |
