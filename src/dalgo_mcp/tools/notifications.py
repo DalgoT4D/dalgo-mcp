@@ -1,22 +1,23 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
-from dalgo_mcp.client import DalgoClient, format_response
+from dalgo_mcp.client import format_response
+from dalgo_mcp.context import adapt_context
 
 
-def register(app: FastMCP, get_client):
+def register(app: FastMCP):
 
     @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_notifications() -> str:
         """List recent notifications for the current user."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/notifications/v1")
         return format_response(resp)
 
     @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_unread_count() -> str:
         """Get the count of unread notifications."""
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         resp = await client.get("/api/notifications/unread_count")
         return format_response(resp)
 
@@ -27,7 +28,7 @@ def register(app: FastMCP, get_client):
         Args:
             notification_ids: Optional list of notification IDs to mark as read. If not provided, marks all as read.
         """
-        client: DalgoClient = await get_client()
+        client = await adapt_context()
         payload = {}
         if notification_ids:
             payload["notification_ids"] = notification_ids

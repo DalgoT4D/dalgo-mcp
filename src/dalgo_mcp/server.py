@@ -1,15 +1,18 @@
-import logging
 import json
+import logging
+import time
 
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
 from dalgo_mcp.config import config
-from dalgo_mcp.client import DalgoClient, get_client_for_token
 
 logging.basicConfig(level=logging.DEBUG if config.debug else logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Module-level start time for uptime tracking
+_start_time = time.time()
 
 
 class DebugRequestMiddleware(BaseHTTPMiddleware):
@@ -34,12 +37,45 @@ class DebugRequestMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class ToolCallLoggingMiddleware(BaseHTTPMiddleware):
+    """Log MCP tool calls with timing and success/failure status."""
+
+    async def dispatch(self, request: Request, call_next):
+        tool_name = None
+
+        if request.method == "POST":
+            try:
+                body_bytes = await request.body()
+                data = json.loads(body_bytes)
+                if data.get("method") == "tools/call":
+                    tool_name = data.get("params", {}).get("name")
+            except Exception:
+                pass
+
+        t0 = time.monotonic()
+        response = await call_next(request)
+        duration_ms = (time.monotonic() - t0) * 1000
+
+        if tool_name:
+            success = response.status_code < 400
+            logger.info(
+                "tool_call tool=%s duration_ms=%.1f success=%s status_code=%d",
+                tool_name,
+                duration_ms,
+                success,
+                response.status_code,
+            )
+
+        return response
+
+
 def _create_app() -> FastMCP:
     """Create the FastMCP app with transport-appropriate settings."""
     if config.transport == "streamable-http":
         from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions
-        from dalgo_mcp.oauth import DalgoOAuthProvider
+
         from dalgo_mcp.login import create_login_handlers
+        from dalgo_mcp.oauth import DalgoOAuthProvider
 
         # When behind a reverse proxy/tunnel, use DALGO_PUBLIC_URL as the OAuth
         # issuer and resource URL. Otherwise fall back to localhost (the MCP SDK
@@ -98,7 +134,16 @@ def _create_app() -> FastMCP:
         async def health(request):
             from starlette.responses import JSONResponse
 
-            return JSONResponse({"status": "ok"})
+            from dalgo_mcp.client import _token_clients
+
+            return JSONResponse(
+                {
+                    "status": "ok",
+                    "uptime_seconds": round(time.time() - _start_time, 1),
+                    "active_token_clients": len(_token_clients),
+                    "tool_count": len(mcp._tool_manager._tools),
+                }
+            )
 
         return mcp
     else:
@@ -124,56 +169,32 @@ def _create_app() -> FastMCP:
 
 app = _create_app()
 
-_client: DalgoClient | None = None
-
-
-async def get_client() -> DalgoClient:
-    """Get the appropriate DalgoClient for the current context.
-
-    In stdio mode: returns a global singleton (username/password auth).
-    In HTTP mode: returns a per-token client based on the request's Bearer token.
-    """
-    global _client
-
-    if config.transport == "streamable-http":
-        from mcp.server.auth.middleware.auth_context import get_access_token
-
-        access_token = get_access_token()
-        if access_token is None:
-            raise RuntimeError(
-                "No access token in request context (HTTP mode requires authentication)"
-            )
-        return await get_client_for_token(access_token.token)
-    else:
-        if _client is None:
-            _client = DalgoClient()
-        return _client
-
-
 # Register all tool modules
-from dalgo_mcp.tools import organization
-from dalgo_mcp.tools import warehouse
-from dalgo_mcp.tools import pipelines
-from dalgo_mcp.tools import sources
-from dalgo_mcp.tools import connections
-from dalgo_mcp.tools import dashboards
-from dalgo_mcp.tools import charts
-from dalgo_mcp.tools import reports
-from dalgo_mcp.tools import transforms
-from dalgo_mcp.tools import notifications
-from dalgo_mcp.tools import docs
+from dalgo_mcp.tools import (  # noqa: E402
+    charts,
+    connections,
+    dashboards,
+    docs,
+    notifications,
+    organization,
+    pipelines,
+    reports,
+    sources,
+    transforms,
+    warehouse,
+)
 
-organization.register(app, get_client)
-warehouse.register(app, get_client)
-pipelines.register(app, get_client)
-sources.register(app, get_client)
-connections.register(app, get_client)
-dashboards.register(app, get_client)
-charts.register(app, get_client)
-reports.register(app, get_client)
-transforms.register(app, get_client)
-notifications.register(app, get_client)
-docs.register(app, get_client)
+organization.register(app)
+warehouse.register(app)
+pipelines.register(app)
+sources.register(app)
+connections.register(app)
+dashboards.register(app)
+charts.register(app)
+reports.register(app)
+transforms.register(app)
+notifications.register(app)
+docs.register(app)
 
 
 def main():
@@ -185,6 +206,7 @@ def main():
 
         async def _run_debug_http():
             starlette_app = app.streamable_http_app()
+            starlette_app.add_middleware(ToolCallLoggingMiddleware)
             starlette_app.add_middleware(DebugRequestMiddleware)
             server = uvicorn.Server(
                 uvicorn.Config(
@@ -198,6 +220,24 @@ def main():
 
         logger.info("Starting in DEBUG mode — all requests will be logged")
         anyio.run(_run_debug_http)
+    elif config.transport == "streamable-http":
+        import anyio
+        import uvicorn
+
+        async def _run_http():
+            starlette_app = app.streamable_http_app()
+            starlette_app.add_middleware(ToolCallLoggingMiddleware)
+            server = uvicorn.Server(
+                uvicorn.Config(
+                    starlette_app,
+                    host=app.settings.host,
+                    port=app.settings.port,
+                    log_level=app.settings.log_level.lower(),
+                )
+            )
+            await server.serve()
+
+        anyio.run(_run_http)
     else:
         app.run(transport=config.transport)
 
