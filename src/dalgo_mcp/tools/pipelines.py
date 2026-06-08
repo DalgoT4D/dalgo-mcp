@@ -2,6 +2,7 @@ from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
+from dalgo_mcp.params import DeploymentId, FlowRunId, Limit
 
 
 def register(app: FastMCP):
@@ -14,7 +15,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_pipeline(deployment_id: str) -> str:
+    async def dalgo_get_pipeline(deployment_id: DeploymentId) -> str:
         """Get details of a specific pipeline by its deployment ID.
 
         Args:
@@ -36,11 +37,10 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_update_pipeline(deployment_id: str, pipeline_data: dict) -> str:
+    async def dalgo_update_pipeline(deployment_id: DeploymentId, pipeline_data: dict) -> str:
         """Update an existing pipeline's configuration.
 
         Args:
-            deployment_id: The Prefect deployment ID.
             pipeline_data: Updated pipeline configuration dict.
         """
         client = await adapt_context()
@@ -48,7 +48,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_delete_pipeline(deployment_id: str) -> str:
+    async def dalgo_delete_pipeline(deployment_id: DeploymentId) -> str:
         """Delete a pipeline by its deployment ID.
 
         Args:
@@ -59,7 +59,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_trigger_pipeline_run(deployment_id: str) -> str:
+    async def dalgo_trigger_pipeline_run(deployment_id: DeploymentId) -> str:
         """Trigger an immediate run of a pipeline.
 
         Args:
@@ -70,7 +70,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_pipeline_run_history(deployment_id: str, limit: int = 10) -> str:
+    async def dalgo_get_pipeline_run_history(deployment_id: DeploymentId, limit: Limit = 10) -> str:
         """Get the run history for a specific pipeline.
 
         Args:
@@ -85,7 +85,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_flow_run(flow_run_id: str) -> str:
+    async def dalgo_get_flow_run(flow_run_id: FlowRunId) -> str:
         """Get details of a specific flow run.
 
         Args:
@@ -96,7 +96,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_flow_run_logs(flow_run_id: str) -> str:
+    async def dalgo_get_flow_run_logs(flow_run_id: FlowRunId) -> str:
         """Get logs for a specific flow run.
 
         Args:

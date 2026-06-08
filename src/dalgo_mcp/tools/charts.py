@@ -4,6 +4,7 @@ from mcp.server.fastmcp import FastMCP
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
+from dalgo_mcp.params import ChartId
 from dalgo_mcp.pii import mask_pii_in_rows
 
 
@@ -17,7 +18,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_chart(chart_id: str) -> str:
+    async def dalgo_get_chart(chart_id: ChartId) -> str:
         """Get details of a specific chart.
 
         Args:
@@ -39,11 +40,10 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_update_chart(chart_id: str, chart_data: dict) -> str:
+    async def dalgo_update_chart(chart_id: ChartId, chart_data: dict) -> str:
         """Update an existing chart.
 
         Args:
-            chart_id: The chart ID.
             chart_data: Updated chart configuration dict.
         """
         client = await adapt_context()
@@ -51,7 +51,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_delete_chart(chart_id: str) -> str:
+    async def dalgo_delete_chart(chart_id: ChartId) -> str:
         """Delete a chart.
 
         Args:
@@ -62,7 +62,7 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool()
-    async def dalgo_get_chart_data(chart_id: str) -> str:
+    async def dalgo_get_chart_data(chart_id: ChartId) -> str:
         """Execute a chart's query and return the resulting data.
         PII columns (name, email, phone, address, etc.) are automatically masked.
 
