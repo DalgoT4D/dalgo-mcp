@@ -1,6 +1,7 @@
 import json
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
@@ -10,14 +11,14 @@ from dalgo_mcp.pii import mask_pii_in_rows
 
 def register(app: FastMCP):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_schemas() -> str:
         """List all schemas in the connected data warehouse."""
         client = await adapt_context()
         resp = await client.get("/api/warehouse/schemas")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_tables(schema_name: str) -> str:
         """List all tables in a specific warehouse schema.
 
@@ -28,14 +29,19 @@ def register(app: FastMCP):
         resp = await client.get(f"/api/warehouse/tables/{schema_name}")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_columns(schema: SchemaName, table: TableName) -> str:
-        """Get column names and types for a specific warehouse table."""
+        """Get column names and types for a specific warehouse table.
+
+        Args:
+            schema: Schema name.
+            table: Table name.
+        """
         client = await adapt_context()
         resp = await client.get(f"/api/warehouse/table_columns/{schema}/{table}")
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_data(schema: SchemaName, table: TableName, limit: Limit = 10, offset: Offset = 0) -> str:
         """Fetch rows from a warehouse table. Defaults to 10 rows to avoid context overflow.
         PII columns (name, email, phone, address, etc.) are automatically masked.
@@ -54,9 +60,14 @@ def register(app: FastMCP):
                 pass
         return format_response(resp)
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_table_row_count(schema: SchemaName, table: TableName) -> str:
-        """Get the total row count of a warehouse table."""
+        """Get the total row count of a warehouse table.
+
+        Args:
+            schema: Schema name.
+            table: Table name.
+        """
         client = await adapt_context()
         resp = await client.get(f"/api/warehouse/table_count/{schema}/{table}")
         return format_response(resp)

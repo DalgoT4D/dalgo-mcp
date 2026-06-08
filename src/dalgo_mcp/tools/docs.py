@@ -12,6 +12,7 @@ import time
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 # ---------------------------------------------------------------------------
 # Hardcoded doc index — built from the dalgo_docs repo
@@ -498,7 +499,7 @@ def _score_entry(entry: dict, terms: list[str]) -> int:
 
 def register(app: FastMCP):
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_list_docs() -> str:
         """List all Dalgo documentation pages grouped by section.
 
@@ -528,7 +529,7 @@ def register(app: FastMCP):
             indent=2,
         )
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_search_docs(query: str) -> str:
         """Search Dalgo documentation by keyword.
 
@@ -579,7 +580,7 @@ def register(app: FastMCP):
             indent=2,
         )
 
-    @app.tool()
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dalgo_get_doc(path: str) -> str:
         """Fetch and return the full content of a Dalgo documentation page.
 
