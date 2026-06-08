@@ -1,14 +1,19 @@
 import json
 import logging
+import time
+
+import jwt
 
 import httpx
 
 from dalgo_mcp.config import config
+from dalgo_mcp.errors import DalgoAPIClientError, DalgoAPIServerError
 
 logger = logging.getLogger(__name__)
 
 # Cache of DalgoClient instances keyed by JWT token (for HTTP mode)
 _token_clients: dict[str, "DalgoClient"] = {}
+_token_expiries: dict[str, float] = {}  # token -> unix timestamp of expiry
 
 
 class DalgoClient:
@@ -130,9 +135,50 @@ class DalgoClient:
 
 async def get_client_for_token(token: str) -> DalgoClient:
     """Get or create a cached DalgoClient for the given JWT token."""
-    if token not in _token_clients:
-        _token_clients[token] = await DalgoClient.from_token(config.api_url, token)
-    return _token_clients[token]
+    now = time.time()
+
+    # Evict all expired entries on every call to prevent unbounded growth
+    expired = [t for t, exp in _token_expiries.items() if exp < now]
+    for t in expired:
+        _token_clients.pop(t, None)
+        _token_expiries.pop(t, None)
+
+    # Return cached client if still valid
+    if token in _token_clients and _token_expiries.get(token, 0) > now:
+        return _token_clients[token]
+
+    # Create new client
+    client = await DalgoClient.from_token(config.api_url, token)
+
+    # Extract expiry from JWT (no signature verification needed)
+    try:
+        payload = jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
+        exp = float(payload.get("exp", now + 3600))
+    except Exception:
+        exp = now + 3600  # default 1h if decode fails
+
+    _token_clients[token] = client
+    _token_expiries[token] = exp
+    return client
+
+
+def check_response(resp: httpx.Response, endpoint: str = "") -> httpx.Response:
+    """Raise a typed DalgoAPIError if the response indicates failure.
+
+    Returns the response unchanged if status < 400.
+    """
+    if resp.status_code < 400:
+        return resp
+
+    try:
+        detail = resp.json()
+    except Exception:
+        detail = resp.text
+
+    if 400 <= resp.status_code < 500:
+        raise DalgoAPIClientError(resp.status_code, detail, endpoint)
+    else:
+        raise DalgoAPIServerError(resp.status_code, detail, endpoint)
 
 
 def format_response(resp: httpx.Response) -> str:
