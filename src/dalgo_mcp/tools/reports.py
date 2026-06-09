@@ -13,3 +13,25 @@ def register(app: FastMCP):
         client = await adapt_context()
         resp = await client.get("/api/reports/")
         return format_response(resp)
+
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dalgo_get_report(snapshot_id: str) -> str:
+        """View the data in a specific report.
+
+        Args:
+            snapshot_id: The report snapshot ID (get from dalgo_list_reports).
+        """
+        client = await adapt_context()
+        resp = await client.get(f"/api/reports/{snapshot_id}/view/")
+        return format_response(resp)
+
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
+    async def dalgo_create_report(report_data: dict) -> str:
+        """Create a new report (point-in-time dashboard snapshot).
+
+        Args:
+            report_data: Report configuration dict with query and schedule settings.
+        """
+        client = await adapt_context()
+        resp = await client.post("/api/reports/", json=report_data)
+        return format_response(resp)
