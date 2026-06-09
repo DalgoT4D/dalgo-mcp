@@ -1,9 +1,11 @@
+import json
+
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
 from dalgo_mcp.client import format_response
 from dalgo_mcp.context import adapt_context
-from dalgo_mcp.params import DeploymentId, FlowRunId, Limit
+from dalgo_mcp.params import DeploymentId, FlowRunId
 
 
 def register(app: FastMCP):
@@ -16,14 +18,88 @@ def register(app: FastMCP):
         return format_response(resp)
 
     @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
-    async def dalgo_get_pipeline(deployment_id: DeploymentId) -> str:
-        """Get details of a specific pipeline by its deployment ID.
+    async def dalgo_get_run_status(
+        deployment_id: DeploymentId | None = None,
+        flow_run_id: FlowRunId | None = None,
+    ) -> str:
+        """Get pipeline run status and logs. Dispatches based on what is provided:
+        - deployment_id only → pipeline details + recent run history (last 5 runs)
+        - flow_run_id only → flow run details + logs (use this to debug a specific failing run)
+        - both → pipeline details, recent history, and the specific flow run with logs
+
+        This is the primary tool for debugging pipeline failures. Get deployment_id from
+        dalgo_list_pipelines. Get flow_run_id from a run history response.
 
         Args:
-            deployment_id: The Prefect deployment ID.
+            deployment_id: Prefect deployment ID.
+            flow_run_id: Prefect flow run ID.
+        """
+        from dalgo_mcp.truncate import truncate_log_text
+
+        if deployment_id is None and flow_run_id is None:
+            return json.dumps({"error": "Provide at least one of deployment_id or flow_run_id"})
+
+        client = await adapt_context()
+        result: dict = {}
+
+        if deployment_id:
+            pipeline_resp = await client.get(f"/api/prefect/v1/flows/{deployment_id}")
+            if pipeline_resp.status_code < 400:
+                try:
+                    result["pipeline"] = pipeline_resp.json()
+                except Exception:
+                    result["pipeline"] = pipeline_resp.text
+
+            history_resp = await client.get(
+                f"/api/prefect/v1/flows/{deployment_id}/flow_runs/history",
+                params={"limit": 5},
+            )
+            if history_resp.status_code < 400:
+                try:
+                    result["recent_runs"] = history_resp.json()
+                except Exception:
+                    result["recent_runs"] = history_resp.text
+
+        if flow_run_id:
+            run_resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}")
+            if run_resp.status_code < 400:
+                try:
+                    result["flow_run"] = run_resp.json()
+                except Exception:
+                    result["flow_run"] = run_resp.text
+
+            logs_resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}/logs")
+            if logs_resp.status_code < 400:
+                try:
+                    data = logs_resp.json()
+                    if isinstance(data, str):
+                        result["logs"] = truncate_log_text(data)
+                    elif isinstance(data, list):
+                        text = "\n".join(str(line) for line in data)
+                        result["logs"] = truncate_log_text(text)
+                    elif isinstance(data, dict) and "logs" in data:
+                        truncated = truncate_log_text(str(data["logs"]))
+                        data["logs"] = truncated["content"]
+                        data["_meta"] = truncated["_meta"]
+                        result["logs"] = data
+                    else:
+                        result["logs"] = data
+                except Exception:
+                    result["logs"] = logs_resp.text
+
+        return json.dumps(result, indent=2, default=str)
+
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
+    async def dalgo_trigger_pipeline_run(deployment_id: DeploymentId) -> str:
+        """Trigger an immediate run of a pipeline.
+
+        WARNING: This starts an actual pipeline execution. Confirm with the user before calling.
+
+        Args:
+            deployment_id: The Prefect deployment ID (get from dalgo_list_pipelines).
         """
         client = await adapt_context()
-        resp = await client.get(f"/api/prefect/v1/flows/{deployment_id}")
+        resp = await client.post(f"/api/prefect/v1/flows/{deployment_id}/flow_run/")
         return format_response(resp)
 
     @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
@@ -35,98 +111,4 @@ def register(app: FastMCP):
         """
         client = await adapt_context()
         resp = await client.post("/api/prefect/v1/flows/", json=pipeline_data)
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
-    async def dalgo_update_pipeline(deployment_id: DeploymentId, pipeline_data: dict) -> str:
-        """Update an existing pipeline's configuration.
-
-        Args:
-            pipeline_data: Updated pipeline configuration dict.
-        """
-        client = await adapt_context()
-        resp = await client.put(f"/api/prefect/v1/flows/{deployment_id}", json=pipeline_data)
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=False))
-    async def dalgo_delete_pipeline(deployment_id: DeploymentId) -> str:
-        """Delete a pipeline by its deployment ID.
-
-        Args:
-            deployment_id: The Prefect deployment ID.
-        """
-        client = await adapt_context()
-        resp = await client.delete(f"/api/prefect/v1/flows/{deployment_id}")
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
-    async def dalgo_trigger_pipeline_run(deployment_id: DeploymentId) -> str:
-        """Trigger an immediate run of a pipeline.
-
-        Args:
-            deployment_id: The Prefect deployment ID.
-        """
-        client = await adapt_context()
-        resp = await client.post(f"/api/prefect/v1/flows/{deployment_id}/flow_run/")
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
-    async def dalgo_get_pipeline_run_history(deployment_id: DeploymentId, limit: Limit = 10) -> str:
-        """Get the run history for a specific pipeline.
-
-        Args:
-            deployment_id: The Prefect deployment ID.
-            limit: Maximum number of runs to return (default 10).
-        """
-        client = await adapt_context()
-        resp = await client.get(
-            f"/api/prefect/v1/flows/{deployment_id}/flow_runs/history",
-            params={"limit": limit},
-        )
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
-    async def dalgo_get_flow_run(flow_run_id: FlowRunId) -> str:
-        """Get details of a specific flow run.
-
-        Args:
-            flow_run_id: The Prefect flow run ID.
-        """
-        client = await adapt_context()
-        resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}")
-        return format_response(resp)
-
-    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
-    async def dalgo_get_flow_run_logs(flow_run_id: FlowRunId) -> str:
-        """Get logs for a specific flow run. Large logs are truncated to avoid context overflow —
-        the response includes metadata showing how many lines were omitted.
-
-        Args:
-            flow_run_id: The Prefect flow run ID.
-        """
-        import json
-
-        from dalgo_mcp.truncate import truncate_log_text
-
-        client = await adapt_context()
-        resp = await client.get(f"/api/prefect/flow_runs/{flow_run_id}/logs")
-
-        if resp.status_code < 400:
-            try:
-                data = resp.json()
-                # logs might be a string, a list of strings, or a dict with a 'logs' key
-                if isinstance(data, str):
-                    result = truncate_log_text(data)
-                    return json.dumps(result, indent=2)
-                elif isinstance(data, list):
-                    text = "\n".join(str(line) for line in data)
-                    result = truncate_log_text(text)
-                    return json.dumps(result, indent=2)
-                elif isinstance(data, dict) and "logs" in data:
-                    result = truncate_log_text(str(data["logs"]))
-                    data["logs"] = result["content"]
-                    data["_meta"] = result["_meta"]
-                    return json.dumps(data, indent=2, default=str)
-            except Exception:
-                pass
         return format_response(resp)
