@@ -14,6 +14,13 @@ def register(app: FastMCP):
         resp = await client.get("/api/notifications/v1")
         return format_response(resp)
 
+    @app.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dalgo_get_unread_count() -> str:
+        """Get the count of unread notifications."""
+        client = await adapt_context()
+        resp = await client.get("/api/notifications/unread_count")
+        return format_response(resp)
+
     @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def dalgo_mark_notifications_read(notification_ids: list[str] | None = None) -> str:
         """Mark notifications as read.

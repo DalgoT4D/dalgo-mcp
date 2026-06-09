@@ -20,8 +20,31 @@ def register(app: FastMCP):
         """Get details of a specific dashboard including its charts.
 
         Args:
-            dashboard_id: The dashboard ID (get from dalgo_list_dashboards).
+            dashboard_id: The dashboard ID.
         """
         client = await adapt_context()
         resp = await client.get(f"/api/dashboards/{dashboard_id}/")
         return format_response(resp)
+
+    @app.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
+    async def dalgo_create_dashboard(dashboard_data: dict) -> str:
+        """Create a new dashboard.
+
+        Args:
+            dashboard_data: Dashboard configuration dict with title and optional description.
+        """
+        client = await adapt_context()
+        resp = await client.post("/api/dashboards/", json=dashboard_data)
+        return format_response(resp)
+
+    @app.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
+    async def dalgo_update_dashboard(dashboard_id: DashboardId, dashboard_data: dict) -> str:
+        """Update an existing dashboard.
+
+        Args:
+            dashboard_data: Updated dashboard configuration dict.
+        """
+        client = await adapt_context()
+        resp = await client.put(f"/api/dashboards/{dashboard_id}/", json=dashboard_data)
+        return format_response(resp)
+
