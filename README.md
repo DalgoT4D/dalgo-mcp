@@ -22,6 +22,7 @@ A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Da
 - [Tool Reference](#tool-reference)
 - [Development](#development)
 - [Project Structure](#project-structure)
+- [Releases](#releases)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -302,6 +303,17 @@ src/dalgo_mcp/
     └── docs.py
 tests/               # Pytest suite
 ```
+
+## Releases
+
+This project follows [Semantic Versioning](https://semver.org). Every release is tagged as `v<version>` and documented in the [CHANGELOG](CHANGELOG.md); see the [releases page](https://github.com/DalgoT4D/dalgo-mcp/releases) for downloadable artifacts and notes.
+
+Release process:
+
+1. Bump `version` in `pyproject.toml` and add a section to `CHANGELOG.md`.
+2. Commit, then tag: `git tag v<version> && git push origin v<version>`.
+3. The [publish workflow](.github/workflows/publish.yml) builds the package and publishes it to PyPI automatically.
+4. Create a GitHub release from the tag with the changelog notes.
 
 ## Contributing
 
