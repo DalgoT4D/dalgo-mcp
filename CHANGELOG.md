@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `prompts/` workflow guides — their content now lives in the plugin skills
+  (`skills/`), the single source of truth for workflow guidance.
+- `.claude/commands/` slash commands (`mcp-research`, `ngo-onboarding`,
+  `progress`) — unused local commands superseded by the skills.
+
 ## [0.2.0] - 2026-06-13
 
 ### Added
