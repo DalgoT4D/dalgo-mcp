@@ -1,11 +1,42 @@
+# Environments / secrets
 .env
+.env.local
+.env.*.local
 .venv/
+venv/
+.python-version
+
+# Python artifacts
 __pycache__/
-*.pyc
+*.py[cod]
 *.egg-info/
 dist/
 build/
-.python-version
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# uv
 uv.lock
+
+# Claude Code local state
+.claude/worktrees/
+.claude/settings.local.json
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local-only files
 nginx.conf
 test_remote.py

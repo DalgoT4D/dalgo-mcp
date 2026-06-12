@@ -1,12 +1,182 @@
 # Dalgo MCP Server
 
-MCP server for the [Dalgo](https://dalgo.in) ELT orchestration platform. Gives AI assistants access to your data warehouse, pipelines, dashboards, charts, reports, and more — via natural language.
+[![CI](https://github.com/DalgoT4D/dalgo-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/DalgoT4D/dalgo-mcp/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#license)
+[![MCP](https://img.shields.io/badge/MCP-compatible-8A2BE2.svg)](https://modelcontextprotocol.io)
 
-Supports two transports:
-- **stdio** — for Claude Desktop and Claude Code (local setup)
-- **streamable-http** — for the Anthropic Messages API MCP connector (remote, no local setup needed)
+A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Dalgo](https://dalgo.in), the open-source data platform for the social sector. It lets AI assistants like Claude work with your data warehouse, ingestion pipelines, dbt transformations, dashboards, charts, and reports through natural language.
 
-## Tools
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Claude Desktop](#claude-desktop)
+  - [Claude Code](#claude-code)
+  - [Anthropic Messages API (remote)](#anthropic-messages-api-remote)
+  - [Docker](#docker)
+- [Authentication](#authentication)
+- [Tool Reference](#tool-reference)
+- [Development](#development)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **62 tools** covering the full Dalgo platform: warehouse exploration, pipeline orchestration, Airbyte sources and connections, dbt transformations, dashboards, charts, reports, notifications, and documentation search.
+- **Dual transport** — run locally over `stdio` for Claude Desktop and Claude Code, or serve remotely over `streamable-http` for the Anthropic Messages API MCP connector.
+- **Multi-user HTTP mode** — each request authenticates with the caller's own Dalgo JWT; the server detects their organization automatically.
+- **One-command install** as a Claude Code plugin.
+- **Docker-ready** for self-hosted deployments.
+
+## Quick Start
+
+The fastest way to get started is the Claude Code plugin:
+
+```bash
+claude plugin install dalgo
+```
+
+You'll be prompted for your Dalgo API URL, username, password, and organization slug. The plugin configures the MCP server automatically — no further setup needed.
+
+## Installation
+
+Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/).
+
+```bash
+git clone https://github.com/DalgoT4D/dalgo-mcp.git
+cd dalgo-mcp
+cp .env.example .env
+# Edit .env with your Dalgo credentials
+uv sync
+```
+
+Verify the server starts:
+
+```bash
+uv run dalgo-mcp
+```
+
+## Configuration
+
+All configuration is via environment variables (or a `.env` file — see [`.env.example`](.env.example)).
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `DALGO_API_URL` | Yes | `http://localhost:8002` | Dalgo API base URL |
+| `DALGO_USERNAME` | stdio only | — | Dalgo login email |
+| `DALGO_PASSWORD` | stdio only | — | Dalgo login password |
+| `DALGO_ORG_SLUG` | stdio only | — | Dalgo organization slug |
+| `DALGO_TRANSPORT` | No | `stdio` | `stdio` or `streamable-http` |
+| `DALGO_HOST` | No | `0.0.0.0` | HTTP server bind address |
+| `DALGO_PORT` | No | `8080` | HTTP server port |
+
+## Usage
+
+### Claude Desktop
+
+Add the server to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "dalgo": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/dalgo-mcp", "dalgo-mcp"],
+      "env": {
+        "DALGO_API_URL": "https://your-dalgo-instance.com",
+        "DALGO_USERNAME": "your-email@example.com",
+        "DALGO_PASSWORD": "your-password",
+        "DALGO_ORG_SLUG": "your-org-slug"
+      }
+    }
+  }
+}
+```
+
+### Claude Code
+
+If you prefer manual setup over the [plugin](#quick-start):
+
+```bash
+claude mcp add --transport stdio dalgo -- uv run --directory /path/to/dalgo-mcp dalgo-mcp
+```
+
+Credentials are read from the `.env` file in the project directory.
+
+### Anthropic Messages API (remote)
+
+Run the server in `streamable-http` mode so any user can connect with a URL and their own Dalgo JWT — no local setup required:
+
+```bash
+DALGO_TRANSPORT=streamable-http \
+DALGO_API_URL=https://your-dalgo-instance.com \
+DALGO_HOST=0.0.0.0 \
+DALGO_PORT=8080 \
+uv run dalgo-mcp
+```
+
+Then connect via the [MCP connector](https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector):
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    mcp_servers=[
+        {
+            "type": "url",
+            "url": "http://your-server:8080/mcp/",
+            "name": "dalgo",
+            "authorization_token": "<dalgo-jwt-token>",
+        }
+    ],
+    messages=[{"role": "user", "content": "List my pipelines"}],
+)
+```
+
+The `authorization_token` is a Dalgo JWT. Each user passes their own token and the server detects their organization automatically.
+
+### Docker
+
+The image runs in `streamable-http` mode on port `8079` by default.
+
+```bash
+cp .env.example .env
+# Edit .env — at minimum, set DALGO_API_URL
+
+docker build -t dalgo-mcp .
+docker run --rm -p 8079:8079 --env-file .env dalgo-mcp
+```
+
+Or with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+The server is then reachable at `http://localhost:8079/`. Point the Anthropic MCP connector at that URL and pass each user's Dalgo JWT as the `authorization_token`.
+
+## Authentication
+
+| Mode | Auth method |
+|------|------------|
+| `stdio` | Username/password from `.env`; single user |
+| `streamable-http` | Bearer JWT per request; multi-user, org auto-detected via `/api/currentuserv2` |
+
+In HTTP mode the server verifies JWT structure and expiry, while the Dalgo backend validates signatures. Per-token clients are cached, so organization detection happens only once per token.
+
+## Tool Reference
+
+<details>
+<summary><strong>All 62 tools</strong> — click to expand</summary>
 
 <!-- TOOLS_TABLE_START -->
 | Tool | Description | Category |
@@ -22,7 +192,7 @@ Supports two transports:
 | `dalgo_create_pipeline` | Create a new orchestration pipeline | Pipelines |
 | `dalgo_delete_pipeline` | Delete a pipeline by its deployment ID | Pipelines |
 | `dalgo_get_flow_run` | Get details of a specific flow run | Pipelines |
-| `dalgo_get_flow_run_logs` | Get logs for a specific flow run | Pipelines |
+| `dalgo_get_flow_run_logs` | Get logs for a specific flow run. Large logs are truncated to avoid context overflow — | Pipelines |
 | `dalgo_get_pipeline` | Get details of a specific pipeline by its deployment ID | Pipelines |
 | `dalgo_get_pipeline_run_history` | Get the run history for a specific pipeline | Pipelines |
 | `dalgo_list_pipelines` | List all orchestration pipelines (Prefect deployments) in the organization | Pipelines |
@@ -75,150 +245,31 @@ Supports two transports:
 | `dalgo_search_docs` | Search Dalgo documentation by keyword | Documentation |
 <!-- TOOLS_TABLE_END -->
 
-**62 tools total.**
+</details>
 
-## Setup
-
-Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/).
+The table above is auto-generated. After adding or changing tools, regenerate it with:
 
 ```bash
-git clone https://github.com/DalgoT4D/dalgo-mcp.git
-cd dalgo-mcp
-cp .env.example .env
-# Edit .env with your Dalgo credentials
-uv sync
+uv run python scripts/generate_tool_table.py
 ```
 
-## Quick Install (Claude Code Plugin)
+## Development
 
 ```bash
-claude plugin install dalgo
+# Install with dev dependencies
+uv sync --extra dev
+
+# Run the test suite
+uv run pytest
+
+# Lint
+uv run ruff check .
+
+# Format check
+uv run ruff format --check .
 ```
 
-You'll be prompted for your Dalgo API URL, username, password, and org slug. That's it — the plugin handles MCP server setup automatically.
-
-## Manual Setup
-
-### stdio mode (Claude Desktop / Claude Code)
-
-Set your credentials in `.env`:
-
-```
-DALGO_API_URL=https://your-dalgo-instance.com
-DALGO_USERNAME=your-email@example.com
-DALGO_PASSWORD=your-password
-DALGO_ORG_SLUG=your-org-slug
-```
-
-Run:
-
-```bash
-uv run dalgo-mcp
-```
-
-#### Claude Desktop config
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "dalgo": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/dalgo-mcp", "dalgo-mcp"],
-      "env": {
-        "DALGO_API_URL": "https://your-dalgo-instance.com",
-        "DALGO_USERNAME": "your-email@example.com",
-        "DALGO_PASSWORD": "your-password",
-        "DALGO_ORG_SLUG": "your-org-slug"
-      }
-    }
-  }
-}
-```
-
-#### Claude Code
-
-```bash
-claude mcp add --transport stdio dalgo -- uv run --directory /path/to/dalgo-mcp dalgo-mcp
-```
-
-### streamable-http mode (Anthropic API)
-
-This mode lets any user connect via a URL and their Dalgo JWT token — no local setup required.
-
-```bash
-DALGO_TRANSPORT=streamable-http \
-DALGO_API_URL=https://your-dalgo-instance.com \
-DALGO_HOST=0.0.0.0 \
-DALGO_PORT=8080 \
-uv run dalgo-mcp
-```
-
-Then use it via the Anthropic Messages API:
-
-```python
-import anthropic
-
-client = anthropic.Anthropic()
-
-response = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=1024,
-    mcp_servers=[
-        {
-            "type": "url",
-            "url": "http://your-server:8080/mcp/",
-            "name": "dalgo",
-            "authorization_token": "<dalgo-jwt-token>",
-        }
-    ],
-    messages=[{"role": "user", "content": "List my pipelines"}],
-)
-```
-
-The `authorization_token` is a Dalgo JWT. Each user passes their own token and the server auto-detects their org.
-
-### Docker
-
-The image runs in `streamable-http` mode on port `8079` by default.
-
-```bash
-cp .env.example .env
-# Edit .env — at minimum, set DALGO_API_URL
-
-docker build -t dalgo-mcp .
-docker run --rm -p 8079:8079 --env-file .env dalgo-mcp
-```
-
-Or with Compose:
-
-```bash
-docker compose up --build
-```
-
-The server will be reachable at `http://localhost:8079/`. Point the Anthropic MCP connector at that URL and pass each user's Dalgo JWT as the `authorization_token`.
-
-## Auth
-
-| Mode | Auth method |
-|------|------------|
-| stdio | Username/password from `.env`, single user |
-| streamable-http | Bearer JWT per request, multi-user, org auto-detected via `/api/currentuserv2` |
-
-In HTTP mode, the server verifies JWT structure and expiry (the Dalgo backend validates signatures). Per-token clients are cached so org detection only happens once per token.
-
-## Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DALGO_API_URL` | Yes | `http://localhost:8002` | Dalgo API base URL |
-| `DALGO_USERNAME` | stdio only | | Dalgo login email |
-| `DALGO_PASSWORD` | stdio only | | Dalgo login password |
-| `DALGO_ORG_SLUG` | stdio only | | Dalgo organization slug |
-| `DALGO_TRANSPORT` | No | `stdio` | `stdio` or `streamable-http` |
-| `DALGO_HOST` | No | `0.0.0.0` | HTTP server bind address |
-| `DALGO_PORT` | No | `8080` | HTTP server port |
+CI runs lint and tests on every push to `main` and on all pull requests.
 
 ## Project Structure
 
@@ -226,11 +277,17 @@ In HTTP mode, the server verifies JWT structure and expiry (the Dalgo backend va
 .claude-plugin/
 └── plugin.json      # Claude Code plugin manifest
 .mcp.json            # MCP server config for plugin mode
+scripts/
+├── generate_tool_table.py   # Regenerates the README tool table
+└── measure_token_cost.py    # Measures tool-schema token footprint
 src/dalgo_mcp/
 ├── config.py        # Environment config and validation
 ├── auth.py          # JWT token verifier for HTTP mode
 ├── client.py        # Async Dalgo API client with auto-auth
 ├── server.py        # FastMCP app, dual transport, client resolution
+├── login.py         # Username/password login flow
+├── oauth.py         # OAuth flow
+├── pii.py           # PII handling utilities
 └── tools/
     ├── organization.py
     ├── warehouse.py
@@ -243,8 +300,24 @@ src/dalgo_mcp/
     ├── transforms.py
     ├── notifications.py
     └── docs.py
+tests/               # Pytest suite
 ```
+
+## Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository and create a feature branch.
+2. Make your changes, keeping `ruff` clean and tests passing (`uv run ruff check . && uv run pytest`).
+3. If you added or changed tools, regenerate the tool table (`uv run python scripts/generate_tool_table.py`).
+4. Open a pull request with a clear description of the change.
+
+Found a bug or have a feature request? Please [open an issue](https://github.com/DalgoT4D/dalgo-mcp/issues).
+
+## About Dalgo
+
+[Dalgo](https://dalgo.in) is an open-source data platform built by [Project Tech4Dev](https://projecttech4dev.org) for the social sector, combining data ingestion (Airbyte), transformation (dbt), orchestration (Prefect), and visualization in one place.
 
 ## License
 
-MIT
+Released under the [MIT License](LICENSE).
