@@ -24,6 +24,7 @@ A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Da
   - [Docker](#docker)
 - [Authentication](#authentication)
 - [Tool Reference](#tool-reference)
+- [Plugin Skills](#plugin-skills)
 - [Development](#development)
 - [Project Structure](#project-structure)
 - [Releases](#releases)
@@ -257,6 +258,22 @@ The table above is auto-generated. After adding or changing tools, regenerate it
 ```bash
 uv run python scripts/generate_tool_table.py
 ```
+
+## Plugin Skills
+
+When installed as a Claude Code plugin, the server ships with [Agent Skills](https://docs.anthropic.com/en/docs/claude-code/skills) — workflow guidance that teaches the assistant *how* to use the tools correctly, not just what they are (modeled on [preset-io/agent-skills](https://github.com/preset-io/agent-skills)).
+
+| Skill | Covers |
+|-------|--------|
+| [`dalgo-mcp`](skills/dalgo-mcp/SKILL.md) | Routing requests to the right domain skill; staying on MCP tools |
+| [`dalgo-warehouse`](skills/dalgo-warehouse/SKILL.md) | Exploring schemas, tables, columns, and sample data safely |
+| [`dalgo-pipelines`](skills/dalgo-pipelines/SKILL.md) | The trigger → poll → verify loop; never reporting "triggered" as "succeeded" |
+| [`dalgo-ingestion`](skills/dalgo-ingestion/SKILL.md) | Airbyte sources, connections, sync history, and sync-failure triage |
+| [`dalgo-transforms`](skills/dalgo-transforms/SKILL.md) | The canvas lock protocol, dbt runs, and plain-language dbt error translation |
+| [`dalgo-visualization`](skills/dalgo-visualization/SKILL.md) | Building charts before dashboards; validating chart queries |
+| [`dalgo-troubleshooting`](skills/dalgo-troubleshooting/SKILL.md) | Evidence-first failure diagnosis and notifications |
+
+Each skill is a `skills/<name>/SKILL.md` with optional `references/` for tool tables and failure-triage patterns.
 
 ## Development
 

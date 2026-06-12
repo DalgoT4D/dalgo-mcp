@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Seven Claude Code plugin skills (`skills/`): a `dalgo-mcp` router plus domain
+  skills for warehouse, pipelines, ingestion, transforms, visualization, and
+  troubleshooting, encoding workflows like trigger-poll-verify and the canvas
+  lock protocol.
+- Demo GIF in the README showing a real failure-diagnosis conversation.
+
 ## [0.1.0] - 2026-06-12
 
 Initial release.
