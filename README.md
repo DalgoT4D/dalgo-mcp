@@ -7,6 +7,10 @@
 
 A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Dalgo](https://dalgo.in), the open-source data platform for the social sector. It lets AI assistants like Claude work with your data warehouse, ingestion pipelines, dbt transformations, dashboards, charts, and reports through natural language.
 
+![Demo: asking Claude which Dalgo pipelines failed recently and why](assets/demo.gif)
+
+*Claude Code diagnosing a failed pipeline through the Dalgo MCP server — listing pipelines, pulling run logs, and pinpointing the dbt error.*
+
 ## Table of Contents
 
 - [Features](#features)
