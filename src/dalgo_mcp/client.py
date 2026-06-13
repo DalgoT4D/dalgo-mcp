@@ -2,9 +2,8 @@ import json
 import logging
 import time
 
-import jwt
-
 import httpx
+import jwt
 
 from dalgo_mcp.config import config
 from dalgo_mcp.errors import DalgoAPIClientError, DalgoAPIServerError

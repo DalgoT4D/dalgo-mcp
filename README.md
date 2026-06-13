@@ -24,6 +24,7 @@ A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Da
   - [Docker](#docker)
 - [Authentication](#authentication)
 - [Tool Reference](#tool-reference)
+- [MCP Apps](#mcp-apps)
 - [Plugin Skills](#plugin-skills)
 - [Development](#development)
 - [Project Structure](#project-structure)
@@ -33,7 +34,8 @@ A [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for [Da
 
 ## Features
 
-- **62 tools** covering the full Dalgo platform: warehouse exploration, pipeline orchestration, Airbyte sources and connections, dbt transformations, dashboards, charts, reports, notifications, and documentation search.
+- **63 tools** covering the full Dalgo platform: warehouse exploration, pipeline orchestration, Airbyte sources and connections, dbt transformations, dashboards, charts, reports, notifications, and documentation search.
+- **Interactive MCP Apps** — supported hosts render chart results as live visualizations in the chat, not just tables. See [Plugin Skills](#plugin-skills) and [`docs/mcp-apps.md`](docs/mcp-apps.md).
 - **Dual transport** — run locally over `stdio` for Claude Desktop and Claude Code, or serve remotely over `streamable-http` for the Anthropic Messages API MCP connector.
 - **Multi-user HTTP mode** — each request authenticates with the caller's own Dalgo JWT; the server detects their organization automatically.
 - **One-command install** as a Claude Code plugin.
@@ -182,7 +184,7 @@ In HTTP mode the server verifies JWT structure and expiry, while the Dalgo backe
 ## Tool Reference
 
 <details>
-<summary><strong>All 62 tools</strong> — click to expand</summary>
+<summary><strong>All 63 tools</strong> — click to expand</summary>
 
 <!-- TOOLS_TABLE_START -->
 | Tool | Description | Category |
@@ -223,6 +225,7 @@ In HTTP mode the server verifies JWT structure and expiry, while the Dalgo backe
 | `dalgo_get_chart` | Get details of a specific chart | Charts |
 | `dalgo_get_chart_data` | Execute a chart's query and return the resulting data | Charts |
 | `dalgo_list_charts` | List all charts in the organization | Charts |
+| `dalgo_render_chart` | Render a chart as an interactive visualization | Charts |
 | `dalgo_update_chart` | Update an existing chart | Charts |
 | `dalgo_create_report` | Create a new report (data snapshot) | Reports |
 | `dalgo_delete_report` | Delete a report | Reports |
@@ -258,6 +261,12 @@ The table above is auto-generated. After adding or changing tools, regenerate it
 ```bash
 uv run python scripts/generate_tool_table.py
 ```
+
+## MCP Apps
+
+The server ships an [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) (SEP-1865) interactive view. On hosts that support the extension — Claude, Claude Desktop, VS Code Copilot, and others — calling `dalgo_render_chart` renders the chart as a live SVG visualization (bar, line, pie, or big-number) inside the conversation instead of a JSON table. Hosts without MCP Apps support fall back to the tool's structured data unchanged.
+
+The view (`src/dalgo_mcp/apps/chart_view.html`) is self-contained and dependency-free, runs in a sandboxed iframe, and receives PII-masked data from the server. See [`docs/mcp-apps.md`](docs/mcp-apps.md) for the architecture, the SEP-1865 contract, and the roadmap for further Apps (pipeline run board, dbt DAG viewer, data grid).
 
 ## Plugin Skills
 

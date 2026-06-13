@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- MCP Apps (SEP-1865) support: a `dalgo_render_chart` tool plus a `ui://dalgo/chart`
+  interactive view that renders charts as live SVG visualizations in supporting
+  hosts. See `docs/mcp-apps.md`.
+
 ### Removed
 
 - `prompts/` workflow guides — their content now lives in the plugin skills
