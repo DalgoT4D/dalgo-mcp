@@ -196,6 +196,11 @@ transforms.register(app)
 notifications.register(app)
 docs.register(app)
 
+# Register MCP Apps (SEP-1865) interactive UI resources
+from dalgo_mcp import apps  # noqa: E402
+
+apps.register(app)
+
 
 def main():
     config.validate()
