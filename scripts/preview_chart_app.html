@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dalgo Chart App — local preview harness</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; max-width: 720px; }
+    h1 { font-size: 18px; }
+    p { color: #555; font-size: 14px; }
+    .controls { margin: 16px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    button { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; background: #f6f7fb; cursor: pointer; }
+    button:hover { background: #e9ebf5; }
+    .frame-wrap { border: 1px solid #d8dae5; border-radius: 8px; padding: 12px; }
+    iframe { width: 100%; height: 360px; border: 0; }
+    #log { margin-top: 12px; font-family: monospace; font-size: 12px; color: #777; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Dalgo Chart App — local preview</h1>
+  <p>
+    This harness stands in for an MCP host: it loads the real chart view in a
+    sandboxed iframe, answers its <code>ui/initialize</code> handshake, and pushes
+    a <code>ui/notifications/tool-result</code> with sample data — exactly what
+    Claude does. Use it to eyeball rendering without a live Dalgo instance.
+  </p>
+
+  <div class="controls">
+    <button onclick="send('bar')">Bar</button>
+    <button onclick="send('line')">Line</button>
+    <button onclick="send('pie')">Pie</button>
+    <button onclick="send('number')">Number</button>
+    <button onclick="send('empty')">Empty data</button>
+  </div>
+
+  <div class="frame-wrap">
+    <iframe id="view" sandbox="allow-scripts" src="../src/dalgo_mcp/apps/chart_view.html"></iframe>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    const iframe = document.getElementById("view");
+    const logEl = document.getElementById("log");
+    let pending = "bar";
+
+    const SAMPLES = {
+      bar: {
+        title: "Students by State (sample)",
+        chart_type: "bar",
+        rows: [
+          { state: "Maharashtra", students: 1240 },
+          { state: "Karnataka", students: 980 },
+          { state: "Tamil Nadu", students: 1520 },
+          { state: "Gujarat", students: 610 },
+          { state: "Kerala", students: 870 },
+        ],
+        row_count: 5,
+      },
+      line: {
+        title: "Students reached over time (sample)",
+        chart_type: "line",
+        rows: [
+          { month: "Jan", count: 200 }, { month: "Feb", count: 340 },
+          { month: "Mar", count: 510 }, { month: "Apr", count: 470 },
+          { month: "May", count: 720 }, { month: "Jun", count: 910 },
+        ],
+        row_count: 6,
+      },
+      pie: {
+        title: "Cases by continent (sample)",
+        chart_type: "pie",
+        rows: [
+          { continent: "Asia", cases: 4200 }, { continent: "Europe", cases: 3100 },
+          { continent: "Africa", cases: 1800 }, { continent: "Americas", cases: 2600 },
+        ],
+        row_count: 4,
+      },
+      number: {
+        title: "Total students reached (sample)",
+        chart_type: "number",
+        rows: [{ label: "Total", total: 1284000 }],
+        row_count: 1,
+      },
+      empty: { title: "No data (sample)", chart_type: "bar", rows: [], row_count: 0 },
+    };
+
+    function log(msg) { logEl.textContent += msg + "\n"; }
+
+    function pushResult(kind) {
+      const sc = SAMPLES[kind];
+      iframe.contentWindow.postMessage({
+        jsonrpc: "2.0",
+        method: "ui/notifications/tool-result",
+        params: { result: { content: [], structuredContent: sc } },
+      }, "*");
+      log("→ pushed tool-result: " + kind);
+    }
+
+    function send(kind) {
+      pending = kind;
+      pushResult(kind);
+    }
+
+    // Stand in for the host: answer the view's handshake, then push initial data.
+    window.addEventListener("message", (event) => {
+      const data = event.data || {};
+      if (data.method === "ui/initialize") {
+        log("← view sent ui/initialize");
+        if (data.id != null) {
+          iframe.contentWindow.postMessage({ jsonrpc: "2.0", id: data.id, result: { capabilities: {} } }, "*");
+        }
+      } else if (data.method === "ui/notifications/initialized") {
+        log("← view initialized; pushing sample data");
+        pushResult(pending);
+      } else if (data.method) {
+        log("← view: " + data.method);
+      }
+    });
+  </script>
+</body>
+</html>
