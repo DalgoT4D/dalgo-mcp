@@ -12,5 +12,9 @@ services:
       DALGO_TRANSPORT: streamable-http
       DALGO_HOST: 0.0.0.0
       DALGO_PORT: 8079
+      DALGO_PUBLIC_URL: https://dalgo-mcp.dalgo.org
     ports:
       - "8079:8079"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
